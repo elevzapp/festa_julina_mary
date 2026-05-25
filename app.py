@@ -829,6 +829,108 @@ button[kind="primary"] p {
     margin-bottom: 0.9rem;
 }
 
+
+/* Ajustes v13 - alinhamento e componentes mais estáveis */
+.form-compact {
+    max-width: 760px !important;
+}
+
+/* Campos do formulário com altura consistente */
+div[data-baseweb="input"] > div,
+div[data-baseweb="select"] > div {
+    border: 1px solid #d8b981 !important;
+    background: #ffffff !important;
+    min-height: 48px !important;
+}
+
+/* Selectboxes: fundo claro, texto preto, seta laranja */
+div[data-baseweb="select"] > div,
+div[data-baseweb="select"] * {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+}
+div[data-baseweb="select"] svg {
+    fill: var(--laranja) !important;
+    color: var(--laranja) !important;
+}
+
+/* Evita que os rótulos dos selects quebrem desnecessariamente */
+.stSelectbox label p {
+    white-space: nowrap !important;
+    font-size: 0.98rem !important;
+}
+
+/* Botões centralizados e sem quebra de texto */
+.stButton > button,
+button[kind="secondary"],
+button[kind="primary"] {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+    min-width: 190px !important;
+    width: 100% !important;
+    line-height: 1 !important;
+}
+.stButton > button p,
+button[kind="secondary"] p,
+button[kind="primary"] p {
+    white-space: nowrap !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+}
+
+/* Um único quadrante para o comprovante */
+.upload-box {
+    background: #ffffff;
+    border: 1px dashed #d8b981;
+    border-radius: 22px;
+    padding: 24px;
+    margin: 20px 0 18px 0;
+}
+.upload-box-title {
+    font-size: 1.45rem;
+    font-weight: 900;
+    color: #111111;
+    margin-bottom: 6px;
+}
+.upload-box-note {
+    font-size: 0.98rem;
+    color: #64748b;
+    margin-bottom: 14px;
+}
+
+/* Dentro do quadrante, o uploader não cria outro quadrante */
+section[data-testid="stFileUploaderDropzone"] {
+    border: 0 !important;
+    background: transparent !important;
+    padding: 0 !important;
+    min-height: auto !important;
+}
+section[data-testid="stFileUploaderDropzone"] > div {
+    padding: 0 !important;
+}
+
+/* Esconde textos padrão do uploader que conflitam com a instrução personalizada */
+section[data-testid="stFileUploaderDropzone"] small,
+section[data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"],
+section[data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"] *,
+section[data-testid="stFileUploaderDropzone"] div:has(> small) {
+    display: none !important;
+}
+
+/* Arquivo anexado: claro e legível */
+div[data-testid="stFileUploaderFile"],
+div[data-testid="stFileUploaderFile"] * {
+    background: #fffaf0 !important;
+    color: #111111 !important;
+}
+div[data-testid="stFileUploaderFile"] {
+    border: 1px solid #efd3a1 !important;
+    border-radius: 12px !important;
+}
+
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1237,7 +1339,7 @@ with form_col:
     col3, col4 = st.columns(2)
     with col3:
         qtd_outros_adultos = st.selectbox(
-            "Outros adultos pagantes além de você",
+            "Outros adultos além de você",
             options=list(range(13)),
             index=0,
             key="qtd_outros_adultos",
@@ -1318,7 +1420,7 @@ with form_col:
         valor_total = 0.0
         formulario_cotas_ok = True
 
-        item_placeholder = "Selecione o item"
+        item_placeholder = "Selecione o item que vai levar"
         item_options = [item_placeholder] + [item["nome"] for item in itens_disponiveis]
 
         cota_options = [
@@ -1394,18 +1496,22 @@ with form_col:
             unsafe_allow_html=True,
         )
 
-        with st.container(border=True):
-            st.markdown('<div class="upload-inline-title">Anexo do Comprovante</div>', unsafe_allow_html=True)
-            st.markdown('<div class="upload-inline-note">Máximo de 200KB • PNG, JPG, PDF</div>', unsafe_allow_html=True)
-            comprovante = st.file_uploader(
-                "Comprovante do Pix",
-                type=["png", "jpg", "jpeg", "pdf"],
-                label_visibility="collapsed",
-            )
+        st.markdown(
+            '<div class="upload-box">'
+            '<div class="upload-box-title">Anexo do Comprovante</div>'
+            '<div class="upload-box-note">Máximo de 200KB • PNG, JPG, PDF</div>',
+            unsafe_allow_html=True,
+        )
+        comprovante = st.file_uploader(
+            "Comprovante do Pix",
+            type=["png", "jpg", "jpeg", "pdf"],
+            label_visibility="collapsed",
+        )
+        st.markdown('</div>', unsafe_allow_html=True)
 
-        btn_left, btn_mid, btn_right = st.columns([1.35, 1.3, 1.35])
+        btn_left, btn_mid, btn_right = st.columns([1.2, 1.6, 1.2])
         with btn_mid:
-            confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=False)
+            confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
 
         if confirmar_inscricao:
             if not formulario_cotas_ok:
