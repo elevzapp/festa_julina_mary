@@ -647,6 +647,9 @@ def gerar_link_comprovante(caminho):
 if "mostrar_inscricao" not in st.session_state:
     st.session_state.mostrar_inscricao = False
 
+if st.query_params.get("inscrever") == "1":
+    st.session_state.mostrar_inscricao = True
+
 if "tipo_cota" not in st.session_state:
     st.session_state.tipo_cota = None
 
@@ -807,10 +810,6 @@ if modo_admin:
 # LANDING PAGE
 # =========================
 
-# =========================
-# LANDING PAGE
-# =========================
-
 st.markdown(
     '<div class="intro-card">'
     '<div class="intro-title">Que bom termos sua participação esse ano!</div>'
@@ -823,20 +822,18 @@ st.markdown(
     '🎟️ <strong>Cota R$50:</strong> você participa e não precisa levar nada.<br>'
     '🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>'
     'A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.'
+    '</div>'
+    '<div style="text-align:center; margin-top:28px;">'
+    '<a href="?inscrever=1" '
+    'style="display:inline-block; background:#df7f00; color:#ffffff; '
+    'font-weight:850; text-decoration:none; padding:14px 32px; '
+    'border-radius:999px; box-shadow:0 8px 18px rgba(90,60,20,0.12);">'
+    'Quero me inscrever'
+    '</a>'
+    '</div>'
     '</div>',
     unsafe_allow_html=True
 )
-
-if not st.session_state.mostrar_inscricao:
-    col_btn1, col_btn2, col_btn3 = st.columns([1.4, 1, 1.4])
-
-    with col_btn2:
-        if st.button("Quero me inscrever", use_container_width=True):
-            st.session_state.mostrar_inscricao = True
-            st.rerun()
-
-st.markdown('</div>', unsafe_allow_html=True)
-
 
 # =========================
 # INSCRIÇÃO
