@@ -13,6 +13,100 @@ st.set_page_config(
 )
 
 
+# =========================
+# ESTILO VISUAL
+# =========================
+
+st.markdown(
+    """
+    <style>
+        .stApp {
+            background: linear-gradient(180deg, #07182f 0%, #101010 45%, #15100b 100%);
+            color: #fff;
+        }
+
+        .main .block-container {
+            max-width: 920px;
+            padding-top: 2rem;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #102b4d 0%, #7a2518 55%, #d98722 100%);
+            padding: 28px;
+            border-radius: 22px;
+            border: 1px solid rgba(255,255,255,0.15);
+            box-shadow: 0 18px 50px rgba(0,0,0,0.35);
+            margin-bottom: 24px;
+        }
+
+        .hero h1 {
+            margin: 0;
+            font-size: 42px;
+            line-height: 1.05;
+            color: #fff7df;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: #fff3cf;
+            margin-top: 12px;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.14);
+            padding: 7px 12px;
+            border-radius: 999px;
+            margin-bottom: 14px;
+            color: #fff7df;
+            font-weight: 700;
+        }
+
+        .card-info {
+            background: rgba(255, 247, 223, 0.08);
+            border: 1px solid rgba(255, 247, 223, 0.18);
+            padding: 18px;
+            border-radius: 18px;
+            margin: 14px 0;
+        }
+
+        .card-option {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            padding: 18px;
+            border-radius: 18px;
+            margin-bottom: 12px;
+        }
+
+        .pix-box {
+            background: #1f2937;
+            border: 1px dashed #f5b94c;
+            border-radius: 18px;
+            padding: 18px;
+            margin-top: 18px;
+        }
+
+        div[data-testid="stMetric"] {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 18px;
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.14);
+        }
+
+        .small-note {
+            font-size: 14px;
+            color: #f8d996;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+
+# =========================
+# CONEXÃO COM SUPABASE
+# =========================
+
 @st.cache_resource
 def get_supabase_client():
     url = st.secrets["SUPABASE_URL"]
@@ -22,6 +116,10 @@ def get_supabase_client():
 
 supabase = get_supabase_client()
 
+
+# =========================
+# FUNÇÕES DE BANCO
+# =========================
 
 def buscar_configuracao():
     response = (
@@ -158,17 +256,39 @@ def atualizar_status(participante_id, novo_status):
     )
 
 
+# =========================
+# INTERFACE
+# =========================
+
 config = buscar_configuracao()
 
-st.title("🌽 Festa Junina da Mary")
-st.write("Organização das cotas e dos itens para levar.")
-
-st.info(
-    "Escolha sua forma de participação. "
-    "A confirmação do pagamento será feita manualmente após conferência do comprovante."
+st.markdown(
+    """
+    <div class="hero">
+        <div class="badge">🔥 Save the date • 18 de Julho</div>
+        <h1>🌽 Festa Junina da Mary</h1>
+        <p>
+            Escolha sua forma de participação, envie o comprovante do Pix
+            e ajude a organizar os comes, bebidas e itens da festa.
+        </p>
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
-aba_publica, aba_admin = st.tabs(["Participar", "Admin"])
+st.markdown(
+    """
+    <div class="card-info">
+        <strong>Como funciona?</strong><br><br>
+        <strong>🎟️ Cota R$50:</strong> você participa e não precisa levar nada.<br>
+        <strong>🧺 Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>
+        A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+aba_publica, aba_admin = st.tabs(["🎉 Participar", "🔐 Admin"])
 
 
 with aba_publica:
@@ -186,8 +306,8 @@ with aba_publica:
     vagas_25 = max(limite_25 - total_25, 0)
 
     col1, col2 = st.columns(2)
-    col1.metric("Vagas cota R$50", vagas_50)
-    col2.metric("Vagas cota R$25 + item", vagas_25)
+    col1.metric("Cota R$50 disponíveis", vagas_50)
+    col2.metric("Cota R$25 + item disponíveis", vagas_25)
 
     itens_disponiveis = buscar_itens_disponiveis()
 
@@ -202,42 +322,85 @@ with aba_publica:
     if not opcoes_cota:
         st.warning("As vagas foram preenchidas.")
     else:
+        st.markdown("### 1. Escolha sua forma de participação")
+
+        escolha_cota = st.radio(
+            "Selecione uma opção:",
+            opcoes_cota,
+            key="escolha_cota",
+        )
+
+        item_escolhido = None
+        tipo_cota = None
+        valor_cota = None
+
+        if escolha_cota.startswith("R$50"):
+            tipo_cota = "completa_50"
+            valor_cota = valor_50
+
+            st.markdown(
+                """
+                <div class="card-option">
+                    <strong>🎟️ Você escolheu a cota de R$50.</strong><br>
+                    Você não precisa levar nenhum item. Sua contribuição ajuda a cobrir
+                    os itens principais da festa.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+        if escolha_cota.startswith("R$25"):
+            tipo_cota = "reduzida_25"
+            valor_cota = valor_25
+
+            st.markdown(
+                """
+                <div class="card-option">
+                    <strong>🧺 Você escolheu a cota de R$25.</strong><br>
+                    Agora selecione abaixo qual item você vai levar no dia da festa.
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
+
+            nomes_itens = [
+                f"{item['nome']} — {item['vagas_restantes']} vaga(s) disponível(is)"
+                for item in itens_disponiveis
+            ]
+
+            item_label = st.selectbox(
+                "Item que você vai levar:",
+                nomes_itens,
+                key="item_escolhido",
+            )
+
+            item_escolhido = item_label.split(" — ")[0]
+
+        st.markdown("### 2. Preencha seus dados")
+
         with st.form("form_participacao"):
             nome = st.text_input("Nome completo")
             email = st.text_input("E-mail")
             whatsapp = st.text_input("WhatsApp")
 
-            escolha_cota = st.radio("Escolha sua participação", opcoes_cota)
+            st.markdown("### 3. Faça o Pix")
 
-            item_escolhido = None
-            tipo_cota = None
-            valor_cota = None
+            st.markdown(
+                f"""
+                <div class="pix-box">
+                    <strong>Valor:</strong> R$ {valor_cota:.2f}<br>
+                    <strong>Recebedor:</strong> {config['nome_recebedor_pix']}<br>
+                    <strong>Chave Pix:</strong><br>
+                    <code>{config["chave_pix"]}</code>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-            if escolha_cota.startswith("R$50"):
-                tipo_cota = "completa_50"
-                valor_cota = valor_50
-                st.success("Você escolheu a cota de R$50 e não precisa levar item.")
-
-            if escolha_cota.startswith("R$25"):
-                tipo_cota = "reduzida_25"
-                valor_cota = valor_25
-
-                nomes_itens = [
-                    f"{item['nome']} — {item['vagas_restantes']} vaga(s)"
-                    for item in itens_disponiveis
-                ]
-
-                item_label = st.selectbox(
-                    "Escolha o item que você vai levar",
-                    nomes_itens,
-                )
-
-                item_escolhido = item_label.split(" — ")[0]
-
-            st.markdown("### Dados para Pix")
-            st.write(f"**Valor:** R$ {valor_cota:.2f}")
-            st.write(f"**Recebedor:** {config['nome_recebedor_pix']}")
-            st.code(config["chave_pix"])
+            st.markdown(
+                '<p class="small-note">Depois de pagar, anexe o comprovante abaixo.</p>',
+                unsafe_allow_html=True,
+            )
 
             comprovante = st.file_uploader(
                 "Anexe o comprovante do Pix",
@@ -249,6 +412,8 @@ with aba_publica:
             if enviar:
                 if not nome or not email or not whatsapp:
                     st.error("Preencha nome, e-mail e WhatsApp.")
+                elif tipo_cota == "reduzida_25" and not item_escolhido:
+                    st.error("Escolha o item que você vai levar.")
                 elif not comprovante:
                     st.error("Anexe o comprovante do Pix.")
                 else:
@@ -311,7 +476,7 @@ with aba_admin:
                     st.write(f"**Tipo de cota:** {participante['tipo_cota']}")
                     st.write(f"**Item para levar:** {participante.get('item_levar') or '-'}")
                     st.write(f"**Status:** {participante['status_pagamento']}")
-                    st.write(f"**Comprovante:** {participante.get('comprovante_url') or '-'}")
+                    st.write(f"**Comprovante salvo como:** {participante.get('comprovante_url') or '-'}")
 
                     status_opcoes = [
                         "aguardando_conferencia",
