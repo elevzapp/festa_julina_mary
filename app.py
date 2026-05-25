@@ -5,6 +5,7 @@ from uuid import uuid4
 import base64
 import json
 import re
+import unicodedata
 
 import streamlit as st
 from supabase import create_client
@@ -1167,10 +1168,21 @@ def buscar_itens_disponiveis():
     return disponiveis
 
 
+def gerar_nome_seguro_arquivo(email, extensao):
+    base_email = email.strip().lower()
+    base_email = unicodedata.normalize("NFKD", base_email).encode("ascii", "ignore").decode("ascii")
+    base_email = re.sub(r"[^a-z0-9]+", "_", base_email)
+    base_email = base_email.strip("_") or "participante"
+
+    extensao = unicodedata.normalize("NFKD", extensao.lower()).encode("ascii", "ignore").decode("ascii")
+    extensao = re.sub(r"[^a-z0-9]", "", extensao) or "png"
+
+    return f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{base_email}_{uuid4().hex}.{extensao}"
+
+
 def salvar_comprovante(arquivo, email):
     extensao = arquivo.name.split(".")[-1].lower()
-    nome_seguro = email.replace("@", "_").replace(".", "_")
-    nome_arquivo = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{nome_seguro}_{uuid4()}.{extensao}"
+    nome_arquivo = gerar_nome_seguro_arquivo(email, extensao)
 
     supabase.storage.from_("comprovantes").upload(
         path=nome_arquivo,
