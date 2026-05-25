@@ -110,6 +110,42 @@ textarea {
     background: #ffffff !important;
 }
 
+/* Selectbox claro e legível */
+div[data-baseweb="select"] > div {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+    border: 1px solid #d9c29b !important;
+    border-radius: 14px !important;
+    min-height: 44px !important;
+}
+
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div {
+    color: #1f2937 !important;
+}
+
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] * {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+}
+
+ul[role="listbox"] {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+}
+
+li[role="option"] {
+    background: #ffffff !important;
+    color: #1f2937 !important;
+}
+
+li[role="option"]:hover,
+li[aria-selected="true"] {
+    background: #fff0d4 !important;
+    color: #12355b !important;
+}
+
 .stTextInput label,
 .stNumberInput label,
 .stTextArea label,
@@ -124,7 +160,7 @@ textarea {
     width: 100%;
     max-width: 980px;
     margin: 0 auto;
-    padding: 0 18px;
+    padding: 0;
 }
 
 .hero-img {
@@ -418,6 +454,48 @@ div[data-testid="stRadio"] p {
     color: var(--azul);
 }
 
+
+/* Formulário mais confortável */
+.stTextInput label,
+.stNumberInput label,
+.stTextArea label,
+.stSelectbox label,
+.stRadio label,
+.stFileUploader label {
+    font-size: 1.05rem !important;
+}
+
+div[data-testid="stRadio"] label,
+div[data-testid="stRadio"] p {
+    font-size: 1.12rem !important;
+}
+
+button[data-testid="stBaseButton-secondary"],
+.stButton > button {
+    font-size: 1rem !important;
+}
+
+.success-card {
+    max-width: 720px;
+    margin: 42px auto;
+    background: #f0fdf4;
+    border: 2px solid #86efac;
+    border-radius: 26px;
+    padding: 32px;
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(22, 101, 52, 0.08);
+}
+
+.success-card h2 {
+    font-size: clamp(2rem, 5vw, 3rem);
+    margin: 0 0 12px 0;
+}
+
+.success-card p {
+    font-size: 1.15rem;
+    line-height: 1.6;
+}
+
 @media (max-width: 800px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -667,6 +745,31 @@ vagas_5 = max(5 - total_5, 0)
 
 render_banner()
 
+if st.session_state.inscricao_concluida:
+    html('''
+    <section class="section section-cream">
+        <div class="success-card">
+            <h2>Inscrição enviada com sucesso! 🎉</h2>
+            <p>Recebemos sua inscrição e o comprovante. O pagamento ficará aguardando conferência da organização.</p>
+        </div>
+    </section>
+    ''')
+    btn_s1, btn_s2, btn_s3 = st.columns([1, 1.1, 1])
+    with btn_s2:
+        if st.button("Fazer nova inscrição", use_container_width=True):
+            st.session_state.inscricao_concluida = False
+            st.session_state.familia_confirmada = False
+            st.session_state.adultos_nomes = []
+            st.session_state.criancas_nomes = []
+            st.rerun()
+    html("""
+    <div class="footer-note">
+        Festa Julina da Mary • Organização das inscrições e contribuições<br>
+        <strong>Desenvolvimento by Levz</strong>
+    </div>
+    """)
+    st.stop()
+
 html("""
 <section class="section section-white" id="inicio">
     <div class="section-inner hero-single">
@@ -764,29 +867,7 @@ html('''
 </section>
 ''')
 
-if st.session_state.inscricao_concluida:
-    success_left, success_mid, success_right = st.columns([1, 2.2, 1])
-    with success_mid:
-        html('''
-        <div class="payment-box" style="background:#f0fdf4; border-color:#86efac; text-align:center;">
-            <h3>Inscrição enviada com sucesso! 🎉</h3>
-            <p>Recebemos sua inscrição e o comprovante. O pagamento ficará aguardando conferência da organização.</p>
-        </div>
-        ''')
-        btn_s1, btn_s2, btn_s3 = st.columns([1, 1.25, 1])
-        with btn_s2:
-            if st.button("Fazer nova inscrição", use_container_width=True):
-                st.session_state.inscricao_concluida = False
-                st.rerun()
-    html("""
-    <div class="footer-note">
-        Festa Julina da Mary • Organização das inscrições e contribuições<br>
-        <strong>Desenvolvimento by Levz</strong>
-    </div>
-    """)
-    st.stop()
-
-form_col_left, form_col, form_col_right = st.columns([1, 2.2, 1])
+form_col_left, form_col, form_col_right = st.columns([1.7, 1.2, 1.7])
 
 with form_col:
     responsavel_nome = st.text_input("Nome completo do responsável", key="responsavel_nome")
