@@ -1,8 +1,8 @@
-
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
 from collections import Counter
+import base64
 
 import pandas as pd
 import streamlit as st
@@ -26,12 +26,13 @@ st.markdown(
 <style>
 :root {
     --cream: #fff4df;
-    --paper: #fffdf8;
-    --white: #ffffff;
+    --cream-2: #fffaf0;
+    --paper: #ffffff;
     --navy: #12355b;
-    --navy-2: #1e4d80;
+    --navy-2: #1f4d7c;
     --orange: #df7f00;
     --orange-2: #bf6900;
+    --yellow: #f7c948;
     --line: #ead9bc;
     --soft-line: #f0c987;
     --muted: #64748b;
@@ -62,43 +63,13 @@ h1, h2, h3, h4, p, div, span, label {
     font-family: "Inter", "Segoe UI", Arial, sans-serif;
 }
 
-/* Layout */
-.page-shell {
-    width: 100%;
-}
-
-.top-admin {
-    position: fixed;
-    top: 14px;
-    right: 18px;
-    z-index: 1000;
-}
-
 .content-wrap {
-    width: min(1120px, calc(100% - 40px));
+    width: min(1180px, calc(100% - 48px));
     margin: 0 auto;
 }
 
-.hero-section {
-    background: linear-gradient(180deg, #fff4df 0%, #fffaf0 100%);
-    padding: 28px 0 52px;
-}
-
-.hero-image-card {
-    width: min(1120px, calc(100% - 40px));
-    margin: 0 auto;
-}
-
-.hero-image-card img {
-    width: 100%;
-    border-radius: 28px;
-    box-shadow: 0 18px 44px rgba(90, 60, 20, 0.16);
-    border: 1px solid var(--line);
-}
-
-/* Section blocks */
 .full-section {
-    padding: 76px 0;
+    padding: 78px 0;
 }
 
 .white-section {
@@ -106,246 +77,301 @@ h1, h2, h3, h4, p, div, span, label {
 }
 
 .cream-section {
-    background: #fff4df;
+    background: var(--cream);
 }
 
 .yellow-band {
     background: #f6c453;
-    padding: 68px 0;
+    padding: 78px 0;
 }
 
-.section-title-center {
-    text-align: center;
-    font-size: clamp(2rem, 4vw, 3rem);
-    line-height: 1.1;
-    font-weight: 900;
-    color: var(--navy);
-    margin-bottom: 18px;
+/* Admin */
+.st-key-admin_lock {
+    position: fixed;
+    top: 18px;
+    right: 20px;
+    z-index: 9999;
 }
 
-.section-subtitle-center {
-    text-align: center;
-    font-size: 1.1rem;
-    line-height: 1.7;
-    color: #405168;
-    max-width: 820px;
-    margin: 0 auto 34px;
+.st-key-admin_lock button {
+    width: 34px !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 0 !important;
+    border-radius: 999px !important;
+    background: rgba(0,0,0,0.72) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255,255,255,0.16) !important;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18) !important;
 }
 
-.intro-grid {
+.st-key-admin_lock button p {
+    color: #ffffff !important;
+    font-size: 0.9rem !important;
+}
+
+/* Hero */
+.hero-image-full {
+    width: 100%;
+    height: clamp(280px, 42vw, 620px);
+    object-fit: cover;
+    object-position: center;
+    display: block;
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.hero-main {
+    background: #ffffff;
+    padding: 90px 0 86px;
+}
+
+.hero-grid {
     display: grid;
-    grid-template-columns: 1.05fr 0.95fr;
-    gap: 34px;
+    grid-template-columns: minmax(0, 1fr) minmax(360px, 0.82fr);
+    gap: 54px;
     align-items: center;
 }
 
-.intro-title {
-    font-size: clamp(2.4rem, 5vw, 4.2rem);
+.hero-title {
+    font-size: clamp(2.7rem, 5.7vw, 5.4rem);
+    line-height: 1.04;
+    letter-spacing: -0.05em;
     font-weight: 950;
-    line-height: 1.05;
     color: var(--navy);
-    margin-bottom: 20px;
-    letter-spacing: -0.03em;
-}
-
-.intro-text {
-    font-size: 1.13rem;
-    line-height: 1.75;
-    color: #405168;
     margin-bottom: 26px;
 }
 
-.info-card {
-    background: var(--white);
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 30px;
-    box-shadow: 0 14px 34px rgba(90, 60, 20, 0.10);
+.hero-text {
+    max-width: 720px;
+    font-size: 1.27rem;
+    line-height: 1.72;
+    color: #405168;
+    margin-bottom: 32px;
 }
 
 .how-card {
     background: #fff7e6;
     border: 1px solid var(--soft-line);
     border-left: 8px solid var(--orange);
-    border-radius: 24px;
-    padding: 26px;
+    border-radius: 28px;
+    padding: 34px;
+    box-shadow: 0 14px 30px rgba(90, 60, 20, 0.08);
 }
 
 .how-title {
     color: var(--navy);
-    font-weight: 900;
-    font-size: 1.55rem;
-    margin-bottom: 18px;
+    font-weight: 950;
+    font-size: 1.85rem;
+    margin-bottom: 20px;
 }
 
-.how-text {
+.how-text,
+.quota-line {
     color: #405168;
     line-height: 1.75;
-    font-size: 1.05rem;
-    margin-bottom: 18px;
+    font-size: 1.08rem;
 }
 
 .quota-line {
-    margin: 10px 0;
-    font-size: 1.02rem;
-    line-height: 1.55;
+    margin: 14px 0;
 }
 
 .quota-line strong {
     color: var(--navy);
 }
 
-/* Included items */
-.included-grid {
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 16px;
-    margin-top: 30px;
-}
-
-.included-pill {
-    background: var(--paper);
-    border: 1px solid var(--soft-line);
-    border-radius: 22px;
-    padding: 18px 18px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-height: 74px;
-    box-shadow: 0 8px 20px rgba(90, 60, 20, 0.07);
-    font-weight: 850;
-    color: var(--navy);
-}
-
-.included-emoji {
-    font-size: 1.45rem;
-    flex: 0 0 auto;
-}
-
-.note-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    margin-top: 28px;
-}
-
-.note-card {
-    background: #eef6ff;
-    border: 1px solid #c7ddf7;
-    border-radius: 22px;
-    padding: 20px;
-    color: #244766;
-    line-height: 1.55;
-}
-
-.note-card strong {
-    color: var(--navy);
-}
-
-/* CTA */
-.cta-wrap {
-    margin-top: 30px;
-}
-
-a.cta-button,
-.cta-button {
+/* Buttons */
+a.cta-button {
     display: inline-block;
     background: var(--orange);
     color: #ffffff !important;
     font-weight: 900;
-    text-decoration: none !important;
-    padding: 15px 34px;
+    text-decoration: none;
+    padding: 16px 36px;
     border-radius: 999px;
-    box-shadow: 0 10px 22px rgba(150, 80, 0, 0.18);
-    text-align: center;
+    box-shadow: 0 10px 24px rgba(90, 60, 20, 0.18);
 }
 
-a.cta-button:hover,
-.cta-button:hover {
-    background: var(--orange-2);
+.stButton > button,
+button[kind="secondary"],
+button[kind="primary"],
+.stFormSubmitButton > button {
+    border-radius: 999px !important;
+    font-weight: 900 !important;
+    border: none !important;
+    background: var(--orange) !important;
+    color: #ffffff !important;
+    padding: 0.72rem 1.35rem !important;
+    width: auto !important;
+    min-width: 190px !important;
+}
+
+.stButton > button p,
+button[kind="secondary"] p,
+button[kind="primary"] p,
+.stFormSubmitButton > button p {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+.stButton > button:hover,
+button[kind="secondary"]:hover,
+button[kind="primary"]:hover,
+.stFormSubmitButton > button:hover {
+    background: var(--orange-2) !important;
     color: #ffffff !important;
 }
 
-/* Forms */
-.form-shell {
-    background: #ffffff;
-    border-radius: 32px;
-    border: 1px solid var(--line);
-    box-shadow: 0 16px 44px rgba(90, 60, 20, 0.10);
-    padding: 38px;
-    margin-top: 28px;
-}
-
-.form-title {
-    font-size: clamp(2rem, 4vw, 3rem);
-    color: var(--navy);
+/* Included items */
+.section-title-center {
+    text-align: center;
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1.08;
     font-weight: 950;
-    margin-bottom: 10px;
-    letter-spacing: -0.03em;
-}
-
-.form-subtitle {
-    color: #405168;
-    line-height: 1.65;
-    font-size: 1.05rem;
-    margin-bottom: 30px;
-}
-
-.step-title {
-    font-size: 1.8rem;
     color: var(--navy);
-    font-weight: 900;
-    margin: 36px 0 16px;
-}
-
-.step-subtitle {
-    color: var(--muted);
-    margin-top: -8px;
     margin-bottom: 18px;
 }
 
-/* Stats */
+.section-subtitle-center {
+    text-align: center;
+    font-size: 1.16rem;
+    line-height: 1.7;
+    color: #405168;
+    max-width: 840px;
+    margin: 0 auto 40px;
+}
+
+.included-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+    margin-top: 34px;
+}
+
+.included-card {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(255,255,255,0.6);
+    border-radius: 26px;
+    padding: 26px 18px;
+    min-height: 142px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(90, 60, 20, 0.10);
+    font-weight: 950;
+    color: var(--navy);
+}
+
+.included-emoji {
+    font-size: 2.15rem;
+    line-height: 1;
+}
+
+.note-card-wide {
+    margin: 30px auto 0;
+    max-width: 980px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(255,255,255,0.7);
+    border-radius: 22px;
+    padding: 20px 24px;
+    color: #405168;
+    line-height: 1.7;
+    text-align: center;
+}
+
+.note-card-wide strong {
+    color: var(--navy);
+}
+
+/* Form */
+.form-section {
+    padding: 82px 0;
+}
+
+.form-shell {
+    width: min(980px, calc(100% - 48px));
+    margin: 0 auto;
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    padding: 42px;
+    box-shadow: 0 14px 34px rgba(90, 60, 20, 0.08);
+}
+
+.form-title {
+    color: var(--navy);
+    font-size: clamp(2rem, 3vw, 2.9rem);
+    line-height: 1.1;
+    font-weight: 950;
+    margin-bottom: 12px;
+}
+
+.form-subtitle {
+    color: #526477;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-bottom: 28px;
+}
+
+.step-title {
+    color: var(--navy);
+    font-size: 1.55rem;
+    font-weight: 950;
+    margin: 28px 0 18px;
+}
+
+.person-box {
+    background: #fffaf0;
+    border: 1px solid var(--line);
+    border-radius: 22px;
+    padding: 20px;
+    margin: 16px 0;
+}
+
+.person-title {
+    color: var(--navy);
+    font-size: 1.15rem;
+    font-weight: 950;
+    margin-bottom: 12px;
+}
+
 .stat-grid {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 16px;
-    margin-bottom: 22px;
+    margin: 22px 0 30px;
 }
 
 .stat-card {
-    background: var(--paper);
+    background: #fffdf8;
     border: 1px solid var(--line);
-    border-radius: 24px;
-    padding: 22px;
-    min-height: 120px;
+    border-radius: 22px;
+    padding: 20px;
+    box-shadow: 0 8px 20px rgba(90, 60, 20, 0.05);
 }
 
 .stat-label {
     color: var(--muted);
-    font-weight: 700;
-    margin-bottom: 8px;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
 }
 
 .stat-value {
     color: var(--navy);
-    font-size: 2.25rem;
+    font-size: 2rem;
     font-weight: 950;
 }
 
-/* Adult cards */
-.adult-card {
-    background: #fffaf0;
-    border: 1px solid var(--line);
-    border-radius: 28px;
-    padding: 24px;
-    margin: 18px 0 26px;
-}
-
-.adult-title {
-    font-size: 1.35rem;
-    font-weight: 900;
-    color: var(--navy);
-    margin-bottom: 14px;
+.quota-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    margin: 14px 0 18px;
 }
 
 .quota-card,
@@ -353,8 +379,8 @@ a.cta-button:hover,
     border-radius: 24px;
     padding: 22px;
     min-height: 210px;
+    cursor: pointer;
     box-shadow: 0 8px 22px rgba(90, 60, 20, 0.06);
-    margin-bottom: 12px;
 }
 
 .quota-card {
@@ -368,30 +394,73 @@ a.cta-button:hover,
 }
 
 .quota-title {
-    font-size: 1.35rem;
+    font-size: 1.25rem;
     font-weight: 950;
     color: var(--navy);
     margin-bottom: 8px;
 }
 
 .quota-price {
-    font-size: 2.2rem;
+    font-size: 2rem;
     font-weight: 950;
     color: #b85f00;
     margin-bottom: 10px;
 }
 
-.quota-card-selected .quota-price {
-    color: #3f7d07;
-}
-
 .quota-desc {
-    font-size: 0.98rem;
+    font-size: 0.96rem;
     color: #475569;
     line-height: 1.5;
 }
 
+.item-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin: 14px 0;
+}
+
+.item-card,
+.item-card-selected {
+    border-radius: 22px;
+    padding: 18px;
+    min-height: 128px;
+    text-align: center;
+}
+
+.item-card {
+    background: #fffdf8;
+    border: 2px solid #e8d3ae;
+}
+
+.item-card-selected {
+    background: var(--green-bg);
+    border: 3px solid var(--green);
+}
+
+.item-title {
+    color: var(--navy);
+    font-weight: 950;
+    font-size: 1.02rem;
+    margin-top: 8px;
+}
+
+.item-meta {
+    color: var(--muted);
+    font-size: 0.9rem;
+    margin-top: 8px;
+}
+
 /* Payment */
+.payment-card-main {
+    background: #ffffff;
+    border: 1px solid var(--line);
+    border-radius: 32px;
+    padding: 34px;
+    box-shadow: 0 14px 34px rgba(90, 60, 20, 0.08);
+    margin-top: 36px;
+}
+
 .payment-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -407,7 +476,7 @@ a.cta-button:hover,
 
 .payment-block-title {
     font-size: 1.35rem;
-    font-weight: 900;
+    font-weight: 950;
     color: var(--navy);
     margin-bottom: 14px;
 }
@@ -429,23 +498,23 @@ a.cta-button:hover,
     padding: 13px 16px;
     border-radius: 14px;
     font-size: 1.18rem;
-    font-weight: 900;
+    font-weight: 950;
     letter-spacing: 0.3px;
     margin-top: 8px;
 }
 
 .total-value {
     color: #b85f00;
-    font-size: 1.55rem;
+    font-size: 1.45rem;
     font-weight: 950;
+    margin-top: 16px;
 }
 
-/* Footer */
 .footer-note {
     text-align: center;
     color: #64748b;
-    font-size: 0.95rem;
-    padding: 34px 20px;
+    font-size: 0.92rem;
+    padding: 34px 0 42px;
     line-height: 1.7;
 }
 
@@ -453,29 +522,27 @@ a.cta-button:hover,
     color: var(--navy);
 }
 
-/* Widgets */
+/* Inputs */
 .stTextInput label,
 .stNumberInput label,
-.stSelectbox label,
-.stRadio label,
 .stTextArea label,
-.stFileUploader label {
+.stFileUploader label,
+.stSelectbox label,
+.stRadio label {
     color: var(--navy) !important;
-    font-weight: 800 !important;
+    font-weight: 850 !important;
     font-size: 0.95rem !important;
 }
 
 div[data-baseweb="input"] > div,
-div[data-baseweb="select"] > div,
-textarea {
+div[data-baseweb="textarea"] > div {
     background: #ffffff !important;
     border: 1px solid #d8c6a4 !important;
     border-radius: 14px !important;
-    min-height: 44px !important;
-    color: #1f2937 !important;
 }
 
-input, textarea {
+div[data-baseweb="input"] input,
+textarea {
     color: #1f2937 !important;
     background: #ffffff !important;
 }
@@ -493,7 +560,7 @@ section[data-testid="stFileUploaderDropzone"] * {
 section[data-testid="stFileUploaderDropzone"] button {
     background: var(--orange) !important;
     color: #ffffff !important;
-    font-weight: 900 !important;
+    font-weight: 950 !important;
     border-radius: 999px !important;
     border: none !important;
 }
@@ -502,67 +569,49 @@ section[data-testid="stFileUploaderDropzone"] button * {
     color: #ffffff !important;
 }
 
+/* Streamlit button control */
 .stButton > button,
 button[kind="secondary"],
-button[kind="primary"] {
+button[kind="primary"],
+.stFormSubmitButton > button {
     border-radius: 999px !important;
-    font-weight: 900 !important;
+    font-weight: 950 !important;
     border: none !important;
     background: var(--orange) !important;
     color: #ffffff !important;
-    padding: 0.76rem 1.25rem !important;
+    padding: 0.72rem 1.35rem !important;
+    width: auto !important;
+    min-width: 190px !important;
 }
 
 .stButton > button p,
 button[kind="secondary"] p,
-button[kind="primary"] p {
+button[kind="primary"] p,
+.stFormSubmitButton > button p {
     color: #ffffff !important;
-    font-weight: 900 !important;
-}
-
-.stButton > button:hover,
-button[kind="secondary"]:hover,
-button[kind="primary"]:hover {
-    background: var(--orange-2) !important;
-    color: #ffffff !important;
-    border: none !important;
-}
-
-.admin-lock button {
-    background: transparent !important;
-    color: #111827 !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-    border: none !important;
+    font-weight: 950 !important;
 }
 
 @media (max-width: 900px) {
-    .intro-grid,
-    .note-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .included-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
+    .hero-grid,
+    .included-grid,
+    .quota-grid,
+    .item-grid,
     .stat-grid {
         grid-template-columns: 1fr;
     }
 
+    .hero-main {
+        padding: 54px 0 60px;
+    }
+
     .form-shell {
-        padding: 24px;
-    }
-}
-
-@media (max-width: 560px) {
-    .included-grid {
-        grid-template-columns: 1fr;
+        width: min(100% - 28px, 980px);
+        padding: 26px;
     }
 
-    .content-wrap,
-    .hero-image-card {
-        width: min(100% - 24px, 1120px);
+    .content-wrap {
+        width: min(100% - 28px, 1180px);
     }
 }
 </style>
@@ -590,28 +639,25 @@ supabase = get_supabase_client()
 # =========================
 
 def html(content: str):
-    st.markdown("".join(line.strip() for line in content.strip().splitlines()), unsafe_allow_html=True)
+    st.markdown(content, unsafe_allow_html=True)
 
 
-def money(value):
-    return f"R$ {value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+def money(valor: float):
+    return f"R$ {valor:.2f}".replace(".", ",")
+
+
+def image_as_base64(path: Path):
+    with open(path, "rb") as f:
+        return base64.b64encode(f.read()).decode("utf-8")
 
 
 def get_item_meta(nome_item):
     mapa = {
-        "3 refrigerantes de 2 litros": {
-            "emoji": "🥤",
-            "titulo": "Refrigerantes",
-            "subtitulo": "3 refrigerantes de 2 litros",
-        },
+        "3 refrigerantes de 2 litros": {"emoji": "🥤", "titulo": "Refrigerantes", "subtitulo": "3 refrigerantes de 2 litros"},
         "Arroz doce": {"emoji": "🍚", "titulo": "Arroz doce", "subtitulo": ""},
         "Bolo doce": {"emoji": "🎂", "titulo": "Bolo doce", "subtitulo": ""},
         "Bolo salgado": {"emoji": "🥧", "titulo": "Bolo salgado", "subtitulo": ""},
-        "Doces diversos: abóbora, batata doce, cocada etc.": {
-            "emoji": "🍬",
-            "titulo": "Doces diversos",
-            "subtitulo": "abóbora, batata doce, cocada etc.",
-        },
+        "Doces diversos: abóbora, batata doce, cocada etc.": {"emoji": "🍬", "titulo": "Doces diversos", "subtitulo": "abóbora, batata doce, cocada etc."},
         "Milho verde": {"emoji": "🌽", "titulo": "Milho verde", "subtitulo": ""},
         "Paçoca": {"emoji": "🥜", "titulo": "Paçoca", "subtitulo": ""},
         "Pipoca": {"emoji": "🍿", "titulo": "Pipoca", "subtitulo": ""},
@@ -621,27 +667,34 @@ def get_item_meta(nome_item):
 
 
 def quota_meta(tipo):
-    metas = {
+    dados = {
         "completa_50": {
             "emoji": "🎟️",
             "titulo": "Cota R$50",
-            "preco": 50.0,
-            "descricao": "Para quem não tem tempo. Você não precisa levar nenhum prato.",
+            "preco": 50.00,
+            "descricao": "Para quem não tem tempo. Não precisa levar nenhum prato.",
         },
         "reduzida_25": {
             "emoji": "🧺",
             "titulo": "Cota R$25",
-            "preco": 25.0,
+            "preco": 25.00,
             "descricao": "Você ajuda na organização e leva um prato dentre as opções.",
         },
         "minima_5": {
             "emoji": "🤝",
             "titulo": "Cota R$5",
-            "preco": 5.0,
-            "descricao": "Cota solidária para quem está apertado. Você ajuda de forma simbólica e leva um prato.",
+            "preco": 5.00,
+            "descricao": "Cota solidária para quem está apertado. Também precisa levar um prato.",
         },
     }
-    return metas[tipo]
+    return dados[tipo]
+
+
+LIMITES_COTA = {
+    "completa_50": 30,
+    "reduzida_25": 20,
+    "minima_5": 5,
+}
 
 
 # =========================
@@ -650,7 +703,8 @@ def quota_meta(tipo):
 
 def buscar_configuracao():
     response = (
-        supabase.table("configuracoes_evento")
+        supabase
+        .table("configuracoes_evento")
         .select("*")
         .eq("id", 1)
         .single()
@@ -661,7 +715,8 @@ def buscar_configuracao():
 
 def contar_participantes_por_cota(tipo_cota):
     response = (
-        supabase.table("participantes")
+        supabase
+        .table("participantes")
         .select("id", count="exact")
         .eq("tipo_cota", tipo_cota)
         .in_("status_pagamento", ["aguardando_conferencia", "confirmado"])
@@ -672,7 +727,8 @@ def contar_participantes_por_cota(tipo_cota):
 
 def buscar_itens_disponiveis():
     itens_response = (
-        supabase.table("itens_levar")
+        supabase
+        .table("itens_levar")
         .select("*")
         .eq("ativo", True)
         .order("nome")
@@ -680,21 +736,20 @@ def buscar_itens_disponiveis():
     )
 
     participantes_response = (
-        supabase.table("participantes")
+        supabase
+        .table("participantes")
         .select("item_levar")
-        .in_("tipo_cota", ["reduzida_25", "minima_5"])
         .in_("status_pagamento", ["aguardando_conferencia", "confirmado"])
         .execute()
     )
 
-    ocupados = Counter()
+    ocupados = {}
     for participante in participantes_response.data:
         item = participante.get("item_levar")
         if item:
-            ocupados[item] += 1
+            ocupados[item] = ocupados.get(item, 0) + 1
 
     disponiveis = []
-
     for item in itens_response.data:
         nome = item["nome"]
         vagas_total = item["vagas_total"]
@@ -715,15 +770,14 @@ def buscar_itens_disponiveis():
 def salvar_comprovante(arquivo, email):
     extensao = arquivo.name.split(".")[-1].lower()
     nome_seguro = email.replace("@", "_").replace(".", "_")
-    nome_arquivo = (
-        f"{datetime.now().strftime('%Y%m%d%H%M%S')}_"
-        f"{nome_seguro}_{uuid4()}.{extensao}"
-    )
+    nome_arquivo = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{nome_seguro}_{uuid4()}.{extensao}"
+
+    conteudo = arquivo.getvalue()
 
     supabase.storage.from_("comprovantes").upload(
         path=nome_arquivo,
-        file=arquivo.getvalue(),
-        file_options={"content-type": arquivo.type},
+        file=conteudo,
+        file_options={"content-type": arquivo.type}
     )
 
     return nome_arquivo
@@ -734,39 +788,40 @@ def cadastrar_participantes_grupo(
     email,
     whatsapp,
     adultos,
-    qtd_criancas,
-    familiares,
+    criancas,
     comprovante_url,
 ):
     total = sum(quota_meta(adulto["tipo_cota"])["preco"] for adulto in adultos)
-    payload = []
+    familiares_texto = "; ".join(
+        [f"Adulto: {a.get('nome') or '-'}" for a in adultos] +
+        [f"Criança: {c}" for c in criancas if c]
+    )
 
-    for idx, adulto in enumerate(adultos, start=1):
-        meta = quota_meta(adulto["tipo_cota"])
-        nome_adulto = adulto.get("nome") or f"Adulto {idx}"
-
-        payload.append({
-            "nome": f"{responsavel_nome.strip()} | {nome_adulto.strip()}",
+    registros = []
+    for adulto in adultos:
+        valor = quota_meta(adulto["tipo_cota"])["preco"]
+        registros.append({
+            "nome": adulto.get("nome") or responsavel_nome,
             "email": email.strip().lower(),
             "whatsapp": whatsapp.strip(),
             "tipo_cota": adulto["tipo_cota"],
-            "valor_cota": meta["preco"],
+            "valor_cota": valor,
             "item_levar": adulto.get("item_levar"),
             "status_pagamento": "aguardando_conferencia",
             "comprovante_url": comprovante_url,
             "qtd_adultos_pagantes": len(adultos),
-            "qtd_criancas_ate_10": qtd_criancas,
-            "familiares": familiares.strip(),
+            "qtd_criancas_ate_10": len([c for c in criancas if c]),
+            "familiares": familiares_texto,
             "valor_total": total,
         })
 
-    response = supabase.table("participantes").insert(payload).execute()
-    return response.data
+    return supabase.table("participantes").insert(registros).execute().data
 
 
 def buscar_participantes():
     response = (
-        supabase.table("participantes")
+        supabase
+        .table("participantes")
         .select("*")
         .order("criado_em", desc=True)
         .execute()
@@ -776,7 +831,8 @@ def buscar_participantes():
 
 def atualizar_status(participante_id, novo_status):
     (
-        supabase.table("participantes")
+        supabase
+        .table("participantes")
         .update({"status_pagamento": novo_status})
         .eq("id", participante_id)
         .execute()
@@ -786,12 +842,8 @@ def atualizar_status(participante_id, novo_status):
 def gerar_link_comprovante(caminho):
     if not caminho:
         return None
-
     try:
-        response = supabase.storage.from_("comprovantes").create_signed_url(
-            path=caminho,
-            expires_in=3600,
-        )
+        response = supabase.storage.from_("comprovantes").create_signed_url(path=caminho, expires_in=3600)
         return response.get("signedURL") or response.get("signedUrl")
     except Exception:
         return None
@@ -801,28 +853,18 @@ def gerar_link_comprovante(caminho):
 # SESSION STATE
 # =========================
 
-if "mostrar_inscricao" not in st.session_state:
-    st.session_state.mostrar_inscricao = False
-
-if "tipo_cota_adulto" not in st.session_state:
-    st.session_state.tipo_cota_adulto = {}
-
-if "item_adulto" not in st.session_state:
-    st.session_state.item_adulto = {}
-
-
-def iniciar_inscricao():
-    st.session_state.mostrar_inscricao = True
-
-
-def selecionar_cota(adulto_idx, tipo):
-    st.session_state.tipo_cota_adulto[adulto_idx] = tipo
-    if tipo == "completa_50":
-        st.session_state.item_adulto[adulto_idx] = None
-
-
-def selecionar_item(adulto_idx, item_nome):
-    st.session_state.item_adulto[adulto_idx] = item_nome
+if "modo_admin" not in st.session_state:
+    st.session_state.modo_admin = False
+if "dados_confirmados" not in st.session_state:
+    st.session_state.dados_confirmados = False
+if "adultos_confirmados" not in st.session_state:
+    st.session_state.adultos_confirmados = []
+if "criancas_confirmadas" not in st.session_state:
+    st.session_state.criancas_confirmadas = []
+if "adulto_cotas" not in st.session_state:
+    st.session_state.adulto_cotas = {}
+if "adulto_itens" not in st.session_state:
+    st.session_state.adulto_itens = {}
 
 
 # =========================
@@ -830,12 +872,6 @@ def selecionar_item(adulto_idx, item_nome):
 # =========================
 
 config = buscar_configuracao()
-
-LIMITES_COTA = {
-    "completa_50": int(config["limite_cota_50"]),
-    "reduzida_25": int(config["limite_cota_25"]),
-    "minima_5": 5,
-}
 
 ocupacao_cotas = {
     "completa_50": contar_participantes_por_cota("completa_50"),
@@ -855,39 +891,34 @@ itens_disponiveis_base = buscar_itens_disponiveis()
 # ADMIN DISCRETO
 # =========================
 
-admin_col_1, admin_col_2 = st.columns([14, 1])
-with admin_col_2:
-    if st.button("🔒", key="admin_lock", help="Acesso administrativo"):
-        st.session_state["modo_admin"] = not st.session_state.get("modo_admin", False)
+if st.button("🔒", key="admin_lock", help="Acesso administrativo"):
+    st.session_state.modo_admin = not st.session_state.modo_admin
+    st.rerun()
 
 
 # =========================
-# HERO
+# HERO FULL WIDTH
 # =========================
-
-html('<div class="page-shell"><section class="hero-section"><div class="hero-image-card">')
 
 banner_path = Path(__file__).parent / "banner_festa_julina.png"
-
 if banner_path.exists():
     try:
-        st.image(str(banner_path), use_container_width=True)
+        b64 = image_as_base64(banner_path)
+        html(f'<img class="hero-image-full" src="data:image/png;base64,{b64}" alt="Festa Julina da Mary">')
     except Exception:
         st.error("O banner foi encontrado, mas não pôde ser carregado como imagem.")
 else:
     st.error("Banner não encontrado. Confirme se banner_festa_julina.png está na raiz do projeto.")
-
-html('</div></section></div>')
 
 
 # =========================
 # ADMIN
 # =========================
 
-if st.session_state.get("modo_admin", False):
+if st.session_state.modo_admin:
     html('<section class="full-section cream-section"><div class="content-wrap"><div class="form-shell"><div class="form-title">Painel administrativo</div><div class="form-subtitle">Acesso restrito à organização.</div>')
 
-    senha_col, btn_col, voltar_col = st.columns([2, 0.8, 0.8])
+    senha_col, btn_col, voltar_col = st.columns([1.8, 0.6, 0.6])
     with senha_col:
         senha = st.text_input("Senha do admin", type="password")
     with btn_col:
@@ -898,7 +929,7 @@ if st.session_state.get("modo_admin", False):
         voltar = st.button("Voltar", use_container_width=True)
 
     if voltar:
-        st.session_state["modo_admin"] = False
+        st.session_state.modo_admin = False
         st.rerun()
 
     senha_admin = st.secrets.get("ADMIN_PASSWORD", "admin123")
@@ -913,7 +944,6 @@ if st.session_state.get("modo_admin", False):
             st.info("Ainda não há participantes cadastrados.")
         else:
             df = pd.DataFrame(participantes)
-
             total_previsto = df.get("valor_total", df["valor_cota"]).fillna(df["valor_cota"]).sum()
             total_confirmado = df[df["status_pagamento"] == "confirmado"]["valor_cota"].sum()
 
@@ -923,7 +953,6 @@ if st.session_state.get("modo_admin", False):
             c3.metric("Total confirmado", money(float(total_confirmado)))
 
             st.markdown("### Participantes")
-
             for participante in participantes:
                 with st.expander(f"{participante['nome']} - {money(float(participante['valor_cota']))}"):
                     st.write(f"**E-mail:** {participante['email']}")
@@ -934,9 +963,7 @@ if st.session_state.get("modo_admin", False):
                     st.write(f"**Familiares/acompanhantes:** {participante.get('familiares') or '-'}")
                     st.write(f"**Status:** {participante['status_pagamento']}")
 
-                    comprovante_path = participante.get("comprovante_url")
-                    link_comprovante = gerar_link_comprovante(comprovante_path)
-
+                    link_comprovante = gerar_link_comprovante(participante.get("comprovante_url"))
                     if link_comprovante:
                         st.link_button("Abrir comprovante", link_comprovante)
 
@@ -947,7 +974,6 @@ if st.session_state.get("modo_admin", False):
                         index=status_opcoes.index(participante["status_pagamento"]),
                         key=f"status_{participante['id']}",
                     )
-
                     if st.button("Salvar status", key=f"btn_{participante['id']}"):
                         atualizar_status(participante["id"], novo_status)
                         st.success("Status atualizado.")
@@ -955,14 +981,8 @@ if st.session_state.get("modo_admin", False):
 
             st.markdown("### Tabela geral")
             st.dataframe(df, use_container_width=True)
-
             csv = df.to_csv(index=False).encode("utf-8-sig")
-            st.download_button(
-                "Baixar lista em CSV",
-                data=csv,
-                file_name="participantes_festa_julina_mary.csv",
-                mime="text/csv",
-            )
+            st.download_button("Baixar lista em CSV", data=csv, file_name="participantes_festa_julina_mary.csv", mime="text/csv")
 
     html('</div></div></section><div class="footer-note">Festa Julina da Mary • Organização das inscrições e contribuições<br><strong>Desenvolvimento by Levz</strong></div>')
     st.stop()
@@ -973,13 +993,13 @@ if st.session_state.get("modo_admin", False):
 # =========================
 
 html("""
-<section class="full-section white-section">
+<section class="hero-main">
 <div class="content-wrap">
-<div class="intro-grid">
+<div class="hero-grid">
 <div>
-<div class="intro-title">A Festa Julina da Mary está chegando. Vem participar com a gente!</div>
-<div class="intro-text">Uma noite gostosa, divertida e bem organizada para reunir todo mundo. Quem participar já terá acesso às comidas principais, às brincadeiras, à estrutura preparada e a uma programação cheia de clima julino.</div>
-<div class="cta-wrap"><a class="cta-button" href="#inscricao">Quero me inscrever</a></div>
+<div class="hero-title">A Festa Julina da Mary está chegando. Vem participar com a gente!</div>
+<div class="hero-text">Uma noite gostosa, divertida e bem organizada para reunir todo mundo. Quem participar já terá acesso às comidas principais, às brincadeiras, à estrutura preparada e a uma programação cheia de clima julino.</div>
+<a class="cta-button" href="#inscricao">Quero me inscrever</a>
 </div>
 <div class="how-card">
 <div class="how-title">Como funciona?</div>
@@ -1000,212 +1020,242 @@ html("""
 <div class="section-title-center">O que já está incluso para quem participar?</div>
 <div class="section-subtitle-center">A festa já está sendo preparada com comidas, estrutura e atrações para todo mundo aproveitar.</div>
 <div class="included-grid">
-<div class="included-pill"><span class="included-emoji">🥟</span>Bolinho caipira</div>
-<div class="included-pill"><span class="included-emoji">🍲</span>Caldinhos</div>
-<div class="included-pill"><span class="included-emoji">🌭</span>Cachorro-quente</div>
-<div class="included-pill"><span class="included-emoji">🥤</span>Refrigerante</div>
-<div class="included-pill"><span class="included-emoji">🎤</span>Karaokê</div>
-<div class="included-pill"><span class="included-emoji">📺</span>Telão interativo</div>
-<div class="included-pill"><span class="included-emoji">🎯</span>Bingo</div>
-<div class="included-pill"><span class="included-emoji">🔥</span>Fogueira</div>
-<div class="included-pill"><span class="included-emoji">💋</span>Barraca do beijo</div>
-<div class="included-pill"><span class="included-emoji">🎣</span>Pescaria infantil</div>
-<div class="included-pill"><span class="included-emoji">💃</span>Quadrilha</div>
-<div class="included-pill"><span class="included-emoji">🎊</span>Decoração temática</div>
+<div class="included-card"><div class="included-emoji">🥟</div><div>Bolinho caipira</div></div>
+<div class="included-card"><div class="included-emoji">🍲</div><div>Caldinhos</div></div>
+<div class="included-card"><div class="included-emoji">🌭</div><div>Cachorro-quente</div></div>
+<div class="included-card"><div class="included-emoji">🥤</div><div>Refrigerante</div></div>
+<div class="included-card"><div class="included-emoji">🎤</div><div>Karaokê</div></div>
+<div class="included-card"><div class="included-emoji">📺</div><div>Telão interativo</div></div>
+<div class="included-card"><div class="included-emoji">🎯</div><div>Bingo</div></div>
+<div class="included-card"><div class="included-emoji">🔥</div><div>Fogueira</div></div>
+<div class="included-card"><div class="included-emoji">💋</div><div>Barraca do beijo</div></div>
+<div class="included-card"><div class="included-emoji">🎣</div><div>Pescaria infantil</div></div>
+<div class="included-card"><div class="included-emoji">💃</div><div>Quadrilha</div></div>
+<div class="included-card"><div class="included-emoji">🎊</div><div>Decoração temática</div></div>
 </div>
-<div class="note-grid">
-<div class="note-card">🍻 <strong>Bebidas alcoólicas:</strong> cada pessoa leva a sua, caso queira consumir.</div>
-<div class="note-card">🎁 <strong>Prendas para o bingo:</strong> quem quiser colaborar pode levar prendas extras à vontade.</div>
-</div>
+<div class="note-card-wide">🍻 <strong>Bebidas alcoólicas:</strong> cada pessoa leva a sua, caso queira consumir. &nbsp;•&nbsp; 🎁 <strong>Prendas para o bingo:</strong> quem quiser colaborar pode levar prendas extras à vontade.</div>
 </div>
 </section>
 """)
 
 
 # =========================
-# INSCRIÇÃO
+# INSCRIÇÃO - ETAPA 1
 # =========================
 
-html('<section id="inscricao" class="full-section cream-section"><div class="content-wrap"><div class="form-shell"><div class="form-title">Inscreva sua família</div><div class="form-subtitle">Preencha os dados do responsável, informe quantos adultos participarão e escolha a cota de cada adulto. Crianças até 10 anos não pagam.</div>')
+html('<section id="inscricao" class="form-section cream-section"><div class="form-shell"><div class="form-title">Inscreva sua família</div><div class="form-subtitle">Primeiro, preencha os dados do responsável e informe quem vai participar. Depois disso, você escolherá a cota e o item de cada adulto.</div>')
 
-with st.form("form_inscricao_familia", clear_on_submit=False):
-    responsavel_nome = st.text_input("Nome completo do responsável")
+if not st.session_state.dados_confirmados:
+    with st.form("form_dados_familia", clear_on_submit=False):
+        responsavel_nome = st.text_input("Nome completo do responsável")
+        col_email, col_whatsapp = st.columns(2)
+        with col_email:
+            email = st.text_input("E-mail")
+        with col_whatsapp:
+            whatsapp = st.text_input("WhatsApp")
 
-    col_email, col_whatsapp = st.columns(2)
-    with col_email:
-        email = st.text_input("E-mail")
-    with col_whatsapp:
-        whatsapp = st.text_input("WhatsApp")
+        col_adultos, col_criancas = st.columns(2)
+        with col_adultos:
+            qtd_adultos = st.number_input("Adultos pagantes", min_value=1, max_value=10, value=1, step=1)
+        with col_criancas:
+            qtd_criancas = st.number_input("Crianças até 10 anos", min_value=0, max_value=10, value=0, step=1)
 
-    col_adultos, col_criancas = st.columns(2)
-    with col_adultos:
-        qtd_adultos = st.number_input("Adultos pagantes", min_value=1, max_value=10, value=1, step=1)
-    with col_criancas:
-        qtd_criancas = st.number_input("Crianças até 10 anos", min_value=0, max_value=10, value=0, step=1)
+        st.markdown('<div class="step-title">Nomes dos adultos</div>', unsafe_allow_html=True)
+        nomes_adultos = []
+        for i in range(1, int(qtd_adultos) + 1):
+            nomes_adultos.append(st.text_input(f"Nome do adulto {i}", key=f"pre_adulto_{i}", placeholder="Pode repetir o nome do responsável, se for o caso"))
 
-    familiares = st.text_area(
-        "Nomes dos familiares/acompanhantes",
-        placeholder="Ex.: João, Ana, Pedro (criança), Mariana...",
-        height=90,
-    )
+        nomes_criancas = []
+        if int(qtd_criancas) > 0:
+            st.markdown('<div class="step-title">Nomes das crianças até 10 anos</div>', unsafe_allow_html=True)
+            for i in range(1, int(qtd_criancas) + 1):
+                nomes_criancas.append(st.text_input(f"Nome da criança {i}", key=f"pre_crianca_{i}"))
 
-    st.markdown('<div class="step-title">Cotas disponíveis</div>', unsafe_allow_html=True)
+        confirmar_dados = st.form_submit_button("Continuar para escolher as cotas")
+
+        if confirmar_dados:
+            if not responsavel_nome or not email or not whatsapp:
+                st.error("Preencha nome do responsável, e-mail e WhatsApp.")
+            elif any(not nome for nome in nomes_adultos):
+                st.error("Preencha o nome de todos os adultos pagantes.")
+            elif any(not nome for nome in nomes_criancas):
+                st.error("Preencha o nome das crianças ou reduza a quantidade informada.")
+            else:
+                st.session_state.responsavel_nome = responsavel_nome
+                st.session_state.email = email
+                st.session_state.whatsapp = whatsapp
+                st.session_state.adultos_confirmados = nomes_adultos
+                st.session_state.criancas_confirmadas = nomes_criancas
+                st.session_state.dados_confirmados = True
+                st.rerun()
+
+else:
+    st.success("Dados da família confirmados. Agora escolha a cota de cada adulto.")
+    if st.button("Editar dados da família"):
+        st.session_state.dados_confirmados = False
+        st.rerun()
+
+html('</div></section>')
+
+
+# =========================
+# INSCRIÇÃO - ETAPA 2
+# =========================
+
+if st.session_state.dados_confirmados:
+    html('<section class="form-section cream-section" style="padding-top:0;"><div class="form-shell"><div class="form-title">Escolha as cotas</div><div class="form-subtitle">Selecione uma cota para cada adulto. Quem escolher R$25 ou R$5 também precisa selecionar um item para levar.</div>')
+
     html(f"""
     <div class="stat-grid">
-    <div class="stat-card"><div class="stat-label">Cotas R$50 disponíveis</div><div class="stat-value">{vagas_cotas["completa_50"]}</div></div>
-    <div class="stat-card"><div class="stat-label">Cotas R$25 + item disponíveis</div><div class="stat-value">{vagas_cotas["reduzida_25"]}</div></div>
-    <div class="stat-card"><div class="stat-label">Cotas solidárias R$5 disponíveis</div><div class="stat-value">{vagas_cotas["minima_5"]}</div></div>
+    <div class="stat-card"><div class="stat-label">Cotas R$50 disponíveis</div><div class="stat-value">{vagas_cotas['completa_50']}</div></div>
+    <div class="stat-card"><div class="stat-label">Cotas R$25 + item disponíveis</div><div class="stat-value">{vagas_cotas['reduzida_25']}</div></div>
+    <div class="stat-card"><div class="stat-label">Cotas solidárias R$5 disponíveis</div><div class="stat-value">{vagas_cotas['minima_5']}</div></div>
     </div>
     """)
 
-    adultos = []
-    escolhas_cotas = []
+    for idx, nome_adulto in enumerate(st.session_state.adultos_confirmados, start=1):
+        html(f'<div class="person-box"><div class="person-title">Adulto {idx}: {nome_adulto}</div>')
+        cols = st.columns(3)
+        for col, tipo in zip(cols, ["completa_50", "reduzida_25", "minima_5"]):
+            meta = quota_meta(tipo)
+            selecionado = st.session_state.adulto_cotas.get(idx) == tipo
+            classe = "quota-card-selected" if selecionado else "quota-card"
+            with col:
+                st.markdown(
+                    f"""
+                    <div class="{classe}">
+                    <div class="quota-title">{meta['emoji']} {meta['titulo']}</div>
+                    <div class="quota-price">{money(meta['preco'])}</div>
+                    <div class="quota-desc">{meta['descricao']}</div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+                if st.button("Selecionar" if not selecionado else "Selecionado", key=f"cota_{idx}_{tipo}", use_container_width=True):
+                    st.session_state.adulto_cotas[idx] = tipo
+                    if tipo == "completa_50":
+                        st.session_state.adulto_itens.pop(idx, None)
+                    st.rerun()
 
-    for adulto_idx in range(1, int(qtd_adultos) + 1):
-        html(f'<div class="adult-card"><div class="adult-title">Adulto {adulto_idx}</div></div>')
+        tipo_atual = st.session_state.adulto_cotas.get(idx)
+        if tipo_atual in ["reduzida_25", "minima_5"]:
+            st.markdown("**Escolha o item que este adulto vai levar:**")
 
-        nome_adulto = st.text_input(
-            f"Nome do adulto {adulto_idx}",
-            key=f"nome_adulto_{adulto_idx}",
-            placeholder="Pode repetir o nome do responsável, se for o caso",
-        )
-
-        tipo_cota = st.radio(
-            f"Escolha a cota do adulto {adulto_idx}",
-            options=["completa_50", "reduzida_25", "minima_5"],
-            format_func=lambda tipo: quota_meta(tipo)["titulo"],
-            horizontal=True,
-            key=f"tipo_cota_{adulto_idx}",
-        )
-
-        escolhas_cotas.append(tipo_cota)
-
-        meta_cota = quota_meta(tipo_cota)
-
-        st.markdown(
-            f"""
-            <div class="quota-card-selected">
-                <div class="quota-title">{meta_cota['emoji']} {meta_cota['titulo']}</div>
-                <div class="quota-price">{money(meta_cota['preco'])}</div>
-                <div class="quota-desc">{meta_cota['descricao']}</div>
-            </div>
-            """,
-            unsafe_allow_html=True,
-        )
-
-        item_levar = None
-
-        if tipo_cota in ["reduzida_25", "minima_5"]:
-            # Calcula disponibilidade do item considerando escolhas anteriores na mesma inscrição
             itens_ja_escolhidos = [
-                adulto.get("item_levar")
-                for adulto in adultos
-                if adulto.get("item_levar")
+                item for adulto_idx, item in st.session_state.adulto_itens.items()
+                if adulto_idx != idx and item
             ]
             contagem_local = Counter(itens_ja_escolhidos)
-
             opcoes_itens = []
             for item in itens_disponiveis_base:
                 restantes = item["vagas_restantes"] - contagem_local.get(item["nome"], 0)
                 if restantes > 0:
+                    opcoes_itens.append({**item, "restantes_local": restantes})
+
+            for linha in range(0, len(opcoes_itens), 3):
+                item_cols = st.columns(3)
+                for col, item in zip(item_cols, opcoes_itens[linha:linha + 3]):
                     meta_item = get_item_meta(item["nome"])
-                    opcoes_itens.append((item["nome"], f"{meta_item['emoji']} {meta_item['titulo']} — {restantes} vaga(s)"))
+                    selecionado_item = st.session_state.adulto_itens.get(idx) == item["nome"]
+                    classe_item = "item-card-selected" if selecionado_item else "item-card"
+                    with col:
+                        st.markdown(
+                            f"""
+                            <div class="{classe_item}">
+                            <div class="included-emoji">{meta_item['emoji']}</div>
+                            <div class="item-title">{meta_item['titulo']}</div>
+                            <div class="item-meta">{item['restantes_local']} vaga(s)</div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
+                        if st.button("Selecionar" if not selecionado_item else "Selecionado", key=f"item_{idx}_{item['nome']}", use_container_width=True):
+                            st.session_state.adulto_itens[idx] = item["nome"]
+                            st.rerun()
+        html('</div>')
 
-            if opcoes_itens:
-                item_levar = st.selectbox(
-                    f"Item que o adulto {adulto_idx} vai levar",
-                    options=[item[0] for item in opcoes_itens],
-                    format_func=lambda nome: next(label for value, label in opcoes_itens if value == nome),
-                    key=f"item_adulto_{adulto_idx}",
-                )
-            else:
-                st.warning("Não há mais itens disponíveis para esta cota.")
-
-        adultos.append({
+    adultos_final = []
+    for idx, nome_adulto in enumerate(st.session_state.adultos_confirmados, start=1):
+        tipo = st.session_state.adulto_cotas.get(idx)
+        adultos_final.append({
             "nome": nome_adulto,
-            "tipo_cota": tipo_cota,
-            "item_levar": item_levar,
+            "tipo_cota": tipo,
+            "item_levar": st.session_state.adulto_itens.get(idx),
         })
 
-    total = sum(quota_meta(adulto["tipo_cota"])["preco"] for adulto in adultos)
+    cotas_ok = all(adulto["tipo_cota"] for adulto in adultos_final)
+    itens_ok = all(
+        adulto["tipo_cota"] == "completa_50" or adulto.get("item_levar")
+        for adulto in adultos_final
+        if adulto["tipo_cota"]
+    )
 
-    # Validação visual de disponibilidade de cotas
-    contagem_cotas_form = Counter(escolhas_cotas)
+    contagem_cotas_form = Counter([a["tipo_cota"] for a in adultos_final if a["tipo_cota"]])
     erros_disponibilidade = []
     for tipo, qtd in contagem_cotas_form.items():
         if qtd > vagas_cotas[tipo]:
-            erros_disponibilidade.append(
-                f"{quota_meta(tipo)['titulo']}: selecionadas {qtd}, disponíveis {vagas_cotas[tipo]}."
-            )
+            erros_disponibilidade.append(f"{quota_meta(tipo)['titulo']}: selecionadas {qtd}, disponíveis {vagas_cotas[tipo]}.")
 
-    st.markdown('<div class="step-title">Resumo e pagamento</div>', unsafe_allow_html=True)
+    if cotas_ok:
+        total = sum(quota_meta(adulto["tipo_cota"])["preco"] for adulto in adultos_final)
+        resumo_linhas = "".join(
+            f"<div class='payment-line'><strong>{adulto['nome']}:</strong> {quota_meta(adulto['tipo_cota'])['titulo']} • Item: {adulto.get('item_levar') or '-'}</div>"
+            for adulto in adultos_final
+        )
+        criancas_txt = ", ".join(st.session_state.criancas_confirmadas) if st.session_state.criancas_confirmadas else "-"
 
-    resumo_linhas = "".join(
-        f"<div class='payment-line'><strong>Adulto {idx}:</strong> {adulto.get('nome') or '-'} • {quota_meta(adulto['tipo_cota'])['titulo']} • Item: {adulto.get('item_levar') or '-'}</div>"
-        for idx, adulto in enumerate(adultos, start=1)
-    )
-
-    st.markdown(
-        f"""
+        html(f"""
+        <div class="payment-card-main">
+        <div class="form-title">Resumo e pagamento</div>
         <div class="payment-grid">
-            <div class="payment-block">
-                <div class="payment-block-title">Resumo da inscrição</div>
-                {resumo_linhas}
-                <div class="payment-line"><strong>Crianças até 10 anos:</strong> {int(qtd_criancas)}</div>
-                <div class="payment-line total-value">Total do Pix: {money(total)}</div>
-            </div>
-            <div class="payment-block">
-                <div class="payment-block-title">Dados do Recebedor</div>
-                <div class="payment-line">Copie o código Pix abaixo:</div>
-                <div class="pix-key">{config["chave_pix"]}</div>
-            </div>
-            <div class="payment-block">
-                <div class="payment-block-title">Anexo do Comprovante</div>
-        """,
-        unsafe_allow_html=True,
-    )
+        <div class="payment-block">
+        <div class="payment-block-title">Resumo da inscrição</div>
+        {resumo_linhas}
+        <div class="payment-line"><strong>Crianças até 10 anos:</strong> {criancas_txt}</div>
+        <div class="payment-line total-value">Total do Pix: {money(total)}</div>
+        </div>
+        <div class="payment-block">
+        <div class="payment-block-title">Dados do Recebedor</div>
+        <div class="payment-line">Copie o código Pix abaixo:</div>
+        <div class="pix-key">{config['chave_pix']}</div>
+        </div>
+        <div class="payment-block">
+        <div class="payment-block-title">Anexo do Comprovante</div>
+        </div>
+        """)
 
-    comprovante = st.file_uploader(
-        "Anexe o comprovante do Pix",
-        type=["png", "jpg", "jpeg", "pdf"],
-        label_visibility="collapsed",
-    )
+        comprovante = st.file_uploader("Anexe o comprovante do Pix", type=["png", "jpg", "jpeg", "pdf"], label_visibility="collapsed")
+        html('</div></div>')
 
-    st.markdown("</div></div>", unsafe_allow_html=True)
+        col_submit_1, col_submit_2, col_submit_3 = st.columns([1, 1, 1])
+        with col_submit_2:
+            enviar = st.button("Confirmar minha inscrição", key="confirmar_inscricao", use_container_width=True)
 
-    enviar = st.form_submit_button("Confirmar minha inscrição", use_container_width=True)
+        if enviar:
+            if erros_disponibilidade:
+                st.error("Não há vagas suficientes para as cotas escolhidas: " + " ".join(erros_disponibilidade))
+            elif not itens_ok:
+                st.error("Todos os adultos com cota R$25 ou R$5 precisam escolher um item para levar.")
+            elif not comprovante:
+                st.error("Anexe o comprovante do Pix.")
+            else:
+                try:
+                    comprovante_url = salvar_comprovante(comprovante, st.session_state.email)
+                    cadastrar_participantes_grupo(
+                        responsavel_nome=st.session_state.responsavel_nome,
+                        email=st.session_state.email,
+                        whatsapp=st.session_state.whatsapp,
+                        adultos=adultos_final,
+                        criancas=st.session_state.criancas_confirmadas,
+                        comprovante_url=comprovante_url,
+                    )
+                    st.success("Inscrição enviada com sucesso! O pagamento ficará aguardando conferência da organização.")
+                    st.balloons()
+                except Exception as erro:
+                    st.error("Não foi possível salvar sua inscrição.")
+                    st.exception(erro)
 
-    if enviar:
-        if not responsavel_nome or not email or not whatsapp:
-            st.error("Preencha nome do responsável, e-mail e WhatsApp.")
-        elif erros_disponibilidade:
-            st.error("Não há vagas suficientes para as cotas escolhidas: " + " ".join(erros_disponibilidade))
-        elif any(adulto["tipo_cota"] in ["reduzida_25", "minima_5"] and not adulto.get("item_levar") for adulto in adultos):
-            st.error("Todos os adultos com cota R$25 ou R$5 precisam escolher um item para levar.")
-        elif not comprovante:
-            st.error("Anexe o comprovante do Pix.")
-        else:
-            try:
-                comprovante_url = salvar_comprovante(comprovante, email)
-
-                cadastrar_participantes_grupo(
-                    responsavel_nome=responsavel_nome,
-                    email=email,
-                    whatsapp=whatsapp,
-                    adultos=adultos,
-                    qtd_criancas=int(qtd_criancas),
-                    familiares=familiares,
-                    comprovante_url=comprovante_url,
-                )
-
-                st.success("Inscrição enviada com sucesso! O pagamento ficará aguardando conferência da organização.")
-                st.balloons()
-
-            except Exception as erro:
-                st.error("Não foi possível salvar sua inscrição.")
-                st.exception(erro)
-
-html('</div></div></section>')
+    html('</div></section>')
 
 
 # =========================
