@@ -296,6 +296,17 @@ img {
     margin-top: 14px;
 }
 
+/* Container nativo usado no bloco de pagamento */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    background: #ffffff !important;
+    border: 1px solid #ead9bc !important;
+    border-radius: 26px !important;
+    box-shadow: 0 12px 30px rgba(90, 60, 20, 0.08) !important;
+    padding: 1.1rem 1.2rem !important;
+    margin-top: 24px !important;
+    margin-bottom: 24px !important;
+}
+
 .footer-note {
     text-align: center;
     color: #64748b;
@@ -978,73 +989,72 @@ if st.session_state.mostrar_inscricao:
 
         item_resumo = st.session_state.item_levar or "-"
 
-        st.markdown(
-            '<div class="payment-card">'
-            '<div class="payment-title">4. Resumo e pagamento</div>'
-            '<div class="payment-summary">'
-            f'<strong>Participação escolhida:</strong> {tipo_texto}<br>'
-            f'<strong>Item para levar:</strong> {item_resumo}<br>'
-            f'<strong>Valor do Pix:</strong> R$ {valor_cota:.2f}'
-            '</div>'
-            '<div class="pix-area">'
-            '<div class="pix-label">Recebedor</div>'
-            f'<div class="pix-value">{config["nome_recebedor_pix"]}</div>'
-            '<div class="pix-label">Chave Pix</div>'
-            f'<div class="pix-key">{config["chave_pix"]}</div>'
-            '<div class="payment-note">'
-            'Depois de realizar o pagamento, anexe o comprovante abaixo para concluir sua inscrição.'
-            '</div>'
-            '</div>'
-            '</div>',
-            unsafe_allow_html=True
-        )
+        with st.container(border=True):
+            st.markdown(
+                '<div class="payment-title">4. Resumo e pagamento</div>'
+                '<div class="payment-summary">'
+                f'<strong>Participação escolhida:</strong> {tipo_texto}<br>'
+                f'<strong>Item para levar:</strong> {item_resumo}<br>'
+                f'<strong>Valor do Pix:</strong> R$ {valor_cota:.2f}'
+                '</div>'
+                '<div class="pix-area">'
+                '<div class="pix-label">Recebedor</div>'
+                f'<div class="pix-value">{config["nome_recebedor_pix"]}</div>'
+                '<div class="pix-label">Chave Pix</div>'
+                f'<div class="pix-key">{config["chave_pix"]}</div>'
+                '<div class="payment-note">'
+                'Depois de realizar o pagamento, anexe o comprovante abaixo para concluir sua inscrição.'
+                '</div>'
+                '</div>',
+                unsafe_allow_html=True
+            )
 
-        comprovante = st.file_uploader(
-            "Anexe o comprovante do Pix",
-            type=["png", "jpg", "jpeg", "pdf"],
-        )
+            comprovante = st.file_uploader(
+                "Anexe o comprovante do Pix",
+                type=["png", "jpg", "jpeg", "pdf"],
+            )
 
-        if st.button(
-            "Confirmar minha inscrição",
-            key="confirmar_inscricao",
-            use_container_width=True,
-        ):
-            if not nome or not email or not whatsapp:
-                st.error("Preencha nome, e-mail e WhatsApp antes de confirmar.")
-            elif (
-                st.session_state.tipo_cota == "reduzida_25"
-                and not st.session_state.item_levar
+            if st.button(
+                "Confirmar minha inscrição",
+                key="confirmar_inscricao",
+                use_container_width=True,
             ):
-                st.error("Escolha o item que você vai levar.")
-            elif not comprovante:
-                st.error("Anexe o comprovante do Pix.")
-            else:
-                try:
-                    comprovante_url = salvar_comprovante(comprovante, email)
+                if not nome or not email or not whatsapp:
+                    st.error("Preencha nome, e-mail e WhatsApp antes de confirmar.")
+                elif (
+                    st.session_state.tipo_cota == "reduzida_25"
+                    and not st.session_state.item_levar
+                ):
+                    st.error("Escolha o item que você vai levar.")
+                elif not comprovante:
+                    st.error("Anexe o comprovante do Pix.")
+                else:
+                    try:
+                        comprovante_url = salvar_comprovante(comprovante, email)
 
-                    cadastrar_participante(
-                        nome=nome,
-                        email=email,
-                        whatsapp=whatsapp,
-                        tipo_cota=st.session_state.tipo_cota,
-                        valor_cota=valor_cota,
-                        item_levar=st.session_state.item_levar,
-                        comprovante_url=comprovante_url,
-                    )
+                        cadastrar_participante(
+                            nome=nome,
+                            email=email,
+                            whatsapp=whatsapp,
+                            tipo_cota=st.session_state.tipo_cota,
+                            valor_cota=valor_cota,
+                            item_levar=st.session_state.item_levar,
+                            comprovante_url=comprovante_url,
+                        )
 
-                    st.session_state.tipo_cota = None
-                    st.session_state.item_levar = None
-                    st.session_state.mostrar_inscricao = False
+                        st.session_state.tipo_cota = None
+                        st.session_state.item_levar = None
+                        st.session_state.mostrar_inscricao = False
 
-                    st.success(
-                        "Inscrição enviada com sucesso! "
-                        "O pagamento ficará aguardando conferência da organização."
-                    )
-                    st.rerun()
+                        st.success(
+                            "Inscrição enviada com sucesso! "
+                            "O pagamento ficará aguardando conferência da organização."
+                        )
+                        st.rerun()
 
-                except Exception as erro:
-                    st.error("Não foi possível salvar sua inscrição.")
-                    st.exception(erro)
+                    except Exception as erro:
+                        st.error("Não foi possível salvar sua inscrição.")
+                        st.exception(erro)
 
 
 # =========================
