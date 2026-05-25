@@ -1,4 +1,5 @@
 from datetime import datetime
+from pathlib import Path
 from uuid import uuid4
 
 import pandas as pd
@@ -443,10 +444,30 @@ vagas_25 = max(limite_25 - total_25, 0)
 itens_disponiveis = buscar_itens_disponiveis()
 
 
+# =========================
+# HERO COM IMAGEM
+# =========================
+
 st.markdown('<div class="hero-wrapper">', unsafe_allow_html=True)
-st.image("banner_festa_julina.png", use_container_width=True)
+
+banner_path = Path(__file__).parent / "banner_festa_julina.png"
+
+if banner_path.exists():
+    st.image(str(banner_path), use_container_width=True)
+else:
+    st.error(
+        "Banner não encontrado. Confirme se o arquivo banner_festa_julina.png "
+        "está na raiz do repositório, junto com app.py."
+    )
+    st.write("Arquivos encontrados no projeto:")
+    st.write([p.name for p in Path(__file__).parent.iterdir()])
+
 st.markdown("</div>", unsafe_allow_html=True)
 
+
+# =========================
+# INTRODUÇÃO
+# =========================
 
 st.markdown(
     """
@@ -481,6 +502,10 @@ with col_btn2:
 
 aba_publica, aba_admin = st.tabs(["🎉 Inscrição", "🔐 Admin"])
 
+
+# =========================
+# ABA DE INSCRIÇÃO
+# =========================
 
 with aba_publica:
     if not st.session_state.mostrar_inscricao:
@@ -685,6 +710,10 @@ with aba_publica:
 
             st.markdown("</div>", unsafe_allow_html=True)
 
+
+# =========================
+# ABA ADMIN
+# =========================
 
 with aba_admin:
     st.subheader("Painel administrativo")
