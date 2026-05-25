@@ -120,13 +120,18 @@ textarea {
     font-weight: 750 !important;
 }
 
+.banner-wrap {
+    width: 100%;
+    max-width: 980px;
+    margin: 0 auto;
+    padding: 0 18px;
+}
+
 .hero-img {
-    width: 100vw;
-    max-width: 100vw;
+    width: 100%;
     display: block;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
     object-fit: cover;
+    border-radius: 0 0 18px 18px;
 }
 
 .section {
@@ -323,11 +328,25 @@ textarea {
 .form-intro {
     max-width: 760px;
     margin: 0 auto 30px auto;
-    background: #ffffff;
-    border: 1px solid var(--borda);
-    border-radius: 28px;
-    padding: 30px;
-    box-shadow: 0 12px 30px rgba(90, 60, 20, 0.08);
+}
+
+.form-heading {
+    max-width: 780px;
+    margin: 0 auto 28px auto;
+    text-align: center;
+}
+
+.form-heading .step-title {
+    font-size: clamp(2.1rem, 6vw, 3.4rem);
+}
+
+.form-heading .step-subtitle {
+    font-size: clamp(1rem, 3vw, 1.18rem);
+}
+
+div[data-testid="stRadio"] label,
+div[data-testid="stRadio"] p {
+    font-size: 1.06rem !important;
 }
 
 .step-title {
@@ -470,7 +489,7 @@ def render_banner():
         return
 
     encoded = base64.b64encode(banner_path.read_bytes()).decode("utf-8")
-    html(f'<img class="hero-img" src="data:image/png;base64,{encoded}" alt="Festa Julina da Mary">')
+    html(f'<div class="banner-wrap"><img class="hero-img" src="data:image/png;base64,{encoded}" alt="Festa Julina da Mary"></div>')
 
 
 def buscar_configuracao():
@@ -622,6 +641,9 @@ if "adultos_nomes" not in st.session_state:
 if "criancas_nomes" not in st.session_state:
     st.session_state.criancas_nomes = []
 
+if "inscricao_concluida" not in st.session_state:
+    st.session_state.inscricao_concluida = False
+
 
 # =========================
 # DADOS
@@ -731,16 +753,38 @@ html("""
 html('''
 <section class="section section-cream" id="inscricao">
     <div class="section-inner">
-        <div class="form-intro">
+        <div class="form-heading">
             <div class="step-title">Inscreva sua família</div>
             <div class="step-subtitle">
-                Primeiro preencha os dados do responsável e informe quem vai participar.
+                Preencha os dados do responsável e informe quem vai participar.
                 Crianças até 10 anos não pagam.
             </div>
         </div>
     </div>
 </section>
 ''')
+
+if st.session_state.inscricao_concluida:
+    success_left, success_mid, success_right = st.columns([1, 2.2, 1])
+    with success_mid:
+        html('''
+        <div class="payment-box" style="background:#f0fdf4; border-color:#86efac; text-align:center;">
+            <h3>Inscrição enviada com sucesso! 🎉</h3>
+            <p>Recebemos sua inscrição e o comprovante. O pagamento ficará aguardando conferência da organização.</p>
+        </div>
+        ''')
+        btn_s1, btn_s2, btn_s3 = st.columns([1, 1.25, 1])
+        with btn_s2:
+            if st.button("Fazer nova inscrição", use_container_width=True):
+                st.session_state.inscricao_concluida = False
+                st.rerun()
+    html("""
+    <div class="footer-note">
+        Festa Julina da Mary • Organização das inscrições e contribuições<br>
+        <strong>Desenvolvimento by Levz</strong>
+    </div>
+    """)
+    st.stop()
 
 form_col_left, form_col, form_col_right = st.columns([1, 2.2, 1])
 
@@ -752,15 +796,15 @@ with form_col:
 
     col3, col4 = st.columns(2)
     with col3:
-        qtd_adultos = st.number_input("Adultos pagantes", min_value=1, max_value=12, value=1, step=1)
+        qtd_outros_adultos = st.number_input("Outros adultos pagantes além de você", min_value=0, max_value=12, value=0, step=1)
     with col4:
         qtd_criancas = st.number_input("Crianças até 10 anos", min_value=0, max_value=12, value=0, step=1)
 
-    st.markdown("#### Nomes dos adultos")
-    adultos_nomes = []
-    for i in range(int(qtd_adultos)):
-        default = responsavel_nome if i == 0 else ""
-        adultos_nomes.append(st.text_input(f"Adulto {i + 1}", value=default, key=f"adulto_nome_{i}"))
+    adultos_nomes = [responsavel_nome.strip()] if responsavel_nome.strip() else [""]
+    if int(qtd_outros_adultos) > 0:
+        st.markdown("#### Nomes dos outros adultos")
+        for i in range(int(qtd_outros_adultos)):
+            adultos_nomes.append(st.text_input(f"Adulto adicional {i + 1}", key=f"adulto_nome_{i}"))
 
     criancas_nomes = []
     if int(qtd_criancas) > 0:
@@ -779,7 +823,7 @@ with form_col:
         if not responsavel_nome or not email or not whatsapp:
             st.error("Preencha nome, e-mail e WhatsApp do responsável.")
         elif not adultos_ok:
-            st.error("Preencha o nome de todos os adultos pagantes.")
+            st.error("Preencha o nome do responsável e de todos os adultos adicionais.")
         elif not criancas_ok:
             st.error("Preencha o nome de todas as crianças informadas.")
         else:
@@ -910,8 +954,7 @@ with form_col:
                         comprovante_url=comprovante_url,
                     )
 
-                    st.success("Inscrição enviada com sucesso! O pagamento ficará aguardando conferência da organização.")
-
+                    st.session_state.inscricao_concluida = True
                     st.session_state.familia_confirmada = False
                     st.session_state.mostrar_formulario = False
                     st.session_state.adultos_nomes = []
