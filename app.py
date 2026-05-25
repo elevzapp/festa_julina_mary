@@ -41,14 +41,12 @@ p, li, label, span, div {
     color: #334155;
 }
 
-/* Banner */
 img {
     border-radius: 24px;
     box-shadow: 0 14px 34px rgba(90, 60, 20, 0.13);
     border: 1px solid #ead9bc;
 }
 
-/* Cards principais */
 .intro-card,
 .section-card,
 .ready-card,
@@ -123,7 +121,6 @@ img {
     margin-bottom: 8px;
 }
 
-/* Estatísticas */
 .stat-card {
     background: #fffdf8;
     border: 1px solid #ead9bc;
@@ -147,7 +144,6 @@ img {
     line-height: 1;
 }
 
-/* Cards de cota */
 .option-card,
 .option-card-selected {
     border-radius: 24px;
@@ -194,7 +190,6 @@ img {
     font-weight: 650;
 }
 
-/* Cards de itens */
 .item-card,
 .item-card-selected {
     border-radius: 22px;
@@ -238,7 +233,6 @@ img {
     font-weight: 650;
 }
 
-/* Pagamento */
 .payment-card {
     padding: 30px;
 }
@@ -302,7 +296,6 @@ img {
     margin-top: 14px;
 }
 
-/* Footer */
 .footer-note {
     text-align: center;
     color: #64748b;
@@ -315,7 +308,6 @@ img {
     color: #12355b;
 }
 
-/* Inputs */
 .stTextInput label,
 .stFileUploader label {
     color: #12355b !important;
@@ -341,7 +333,6 @@ input {
     background: #ffffff !important;
 }
 
-/* Upload */
 section[data-testid="stFileUploaderDropzone"] {
     background: #ffffff !important;
     border: 2px dashed #d8c6a4 !important;
@@ -364,7 +355,6 @@ section[data-testid="stFileUploaderDropzone"] button * {
     color: #ffffff !important;
 }
 
-/* Botões laranja */
 .stButton > button,
 button[kind="secondary"],
 button[kind="primary"] {
@@ -391,7 +381,6 @@ button[kind="primary"]:hover {
     border: none !important;
 }
 
-/* Admin toggle discreto */
 div[data-testid="stCheckbox"] label {
     color: #111827 !important;
     font-size: 1.1rem !important;
@@ -425,7 +414,8 @@ supabase = get_supabase_client()
 # =========================
 
 def html(content):
-    st.markdown(dedent(content).strip(), unsafe_allow_html=True)
+    cleaned = "".join(line.strip() for line in dedent(content).strip().splitlines())
+    st.markdown(cleaned, unsafe_allow_html=True)
 
 
 def section_header(title, subtitle=None):
@@ -817,26 +807,25 @@ if modo_admin:
 # LANDING PAGE
 # =========================
 
-html("""
-<div class="intro-card">
-    <div class="intro-title">Que bom termos sua participação esse ano!</div>
-    <div class="intro-text">
-        Para facilitar a organização da festa, este ano a inscrição será feita antecipadamente.
-        Assim conseguimos controlar melhor as comidas, bebidas, estrutura e os itens que cada pessoa vai levar.
-    </div>
-
-    <div class="how-card">
-        <div class="how-card-title">Como funciona?</div>
-        🎟️ <strong>Cota R$50:</strong> você participa e não precisa levar nada.<br>
-        🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>
-        A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.
-    </div>
-
-    <div class="notice">
-        Garanta sua inscrição. As vagas são limitadas!
-    </div>
-</div>
-""")
+st.markdown(
+    '<div class="intro-card">'
+    '<div class="intro-title">Que bom termos sua participação esse ano!</div>'
+    '<div class="intro-text">'
+    'Para facilitar a organização da festa, este ano a inscrição será feita antecipadamente. '
+    'Assim conseguimos controlar melhor as comidas, bebidas, estrutura e os itens que cada pessoa vai levar.'
+    '</div>'
+    '<div class="how-card">'
+    '<div class="how-card-title">Como funciona?</div>'
+    '🎟️ <strong>Cota R$50:</strong> você participa e não precisa levar nada.<br>'
+    '🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>'
+    'A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.'
+    '</div>'
+    '<div class="notice">'
+    'Garanta sua inscrição. As vagas são limitadas!'
+    '</div>'
+    '</div>',
+    unsafe_allow_html=True
+)
 
 
 if not st.session_state.mostrar_inscricao:
@@ -996,29 +985,26 @@ if st.session_state.mostrar_inscricao:
 
         item_resumo = st.session_state.item_levar or "-"
 
-        html(f"""
-        <div class="payment-card">
-            <div class="payment-title">4. Resumo e pagamento</div>
-
-            <div class="payment-summary">
-                <strong>Participação escolhida:</strong> {tipo_texto}<br>
-                <strong>Item para levar:</strong> {item_resumo}<br>
-                <strong>Valor do Pix:</strong> R$ {valor_cota:.2f}
-            </div>
-
-            <div class="pix-area">
-                <div class="pix-label">Recebedor</div>
-                <div class="pix-value">{config['nome_recebedor_pix']}</div>
-
-                <div class="pix-label">Chave Pix</div>
-                <div class="pix-key">{config["chave_pix"]}</div>
-
-                <div class="payment-note">
-                    Depois de realizar o pagamento, anexe o comprovante abaixo para concluir sua inscrição.
-                </div>
-            </div>
-        </div>
-        """)
+        st.markdown(
+            '<div class="payment-card">'
+            '<div class="payment-title">4. Resumo e pagamento</div>'
+            '<div class="payment-summary">'
+            f'<strong>Participação escolhida:</strong> {tipo_texto}<br>'
+            f'<strong>Item para levar:</strong> {item_resumo}<br>'
+            f'<strong>Valor do Pix:</strong> R$ {valor_cota:.2f}'
+            '</div>'
+            '<div class="pix-area">'
+            '<div class="pix-label">Recebedor</div>'
+            f'<div class="pix-value">{config["nome_recebedor_pix"]}</div>'
+            '<div class="pix-label">Chave Pix</div>'
+            f'<div class="pix-key">{config["chave_pix"]}</div>'
+            '<div class="payment-note">'
+            'Depois de realizar o pagamento, anexe o comprovante abaixo para concluir sua inscrição.'
+            '</div>'
+            '</div>'
+            '</div>',
+            unsafe_allow_html=True
+        )
 
         comprovante = st.file_uploader(
             "Anexe o comprovante do Pix",
