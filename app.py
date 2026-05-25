@@ -20,214 +20,201 @@ st.set_page_config(
 
 st.markdown(
     """
-    <style>
-        .stApp {
-            background: #fff7e8;
-            color: #1f2933;
-        }
+<style>
+    .stApp {
+        background: #fff7e8;
+        color: #1f2933;
+    }
 
-        .main .block-container {
-            max-width: 980px;
-            padding-top: 1.5rem;
-            padding-bottom: 4rem;
-        }
+    .main .block-container {
+        max-width: 980px;
+        padding-top: 1.5rem;
+        padding-bottom: 4rem;
+    }
 
-        h1, h2, h3 {
-            color: #12355b;
-        }
+    h1, h2, h3 {
+        color: #12355b;
+    }
 
-        .hero-wrapper {
-            background: #ffffff;
-            padding: 18px;
-            border-radius: 24px;
-            box-shadow: 0 14px 40px rgba(80, 45, 20, 0.14);
-            border: 1px solid rgba(168, 91, 31, 0.18);
-            margin-bottom: 26px;
-        }
+    .intro-card {
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(80, 45, 20, 0.10);
+        border: 1px solid rgba(168, 91, 31, 0.16);
+        margin: 22px 0;
+    }
 
-        .intro-card {
-            background: #ffffff;
-            border-radius: 22px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(80, 45, 20, 0.10);
-            border: 1px solid rgba(168, 91, 31, 0.16);
-            margin: 22px 0;
-        }
+    .intro-card p {
+        font-size: 18px;
+        line-height: 1.6;
+        color: #334155;
+    }
 
-        .intro-card p {
-            font-size: 18px;
-            line-height: 1.6;
-            color: #334155;
-        }
+    .how-card {
+        background: #fff0cf;
+        border-left: 8px solid #d97706;
+        border-radius: 18px;
+        padding: 22px;
+        margin: 18px 0;
+        color: #1f2933;
+    }
 
-        .how-card {
-            background: #fff0cf;
-            border-left: 8px solid #d97706;
-            border-radius: 18px;
-            padding: 22px;
-            margin: 18px 0;
-            color: #1f2933;
-        }
+    .notice {
+        background: #12355b;
+        color: #fff7e8;
+        padding: 18px 22px;
+        border-radius: 18px;
+        margin: 18px 0;
+        font-weight: 600;
+    }
 
-        .notice {
-            background: #12355b;
-            color: #fff7e8;
-            padding: 18px 22px;
-            border-radius: 18px;
-            margin: 18px 0;
-            font-weight: 600;
-        }
+    .section-card {
+        background: #ffffff;
+        border-radius: 22px;
+        padding: 28px;
+        box-shadow: 0 10px 30px rgba(80, 45, 20, 0.10);
+        border: 1px solid rgba(168, 91, 31, 0.16);
+        margin: 24px 0;
+    }
 
-        .section-card {
-            background: #ffffff;
-            border-radius: 22px;
-            padding: 28px;
-            box-shadow: 0 10px 30px rgba(80, 45, 20, 0.10);
-            border: 1px solid rgba(168, 91, 31, 0.16);
-            margin: 24px 0;
-        }
+    .option-card {
+        background: #fffaf0;
+        border: 2px solid #efd3a1;
+        border-radius: 20px;
+        padding: 22px;
+        min-height: 180px;
+        margin-bottom: 14px;
+    }
 
-        .option-card {
-            background: #fffaf0;
-            border: 2px solid #efd3a1;
-            border-radius: 20px;
-            padding: 22px;
-            min-height: 180px;
-            margin-bottom: 14px;
-        }
+    .option-card-selected {
+        background: #fff0cf;
+        border: 3px solid #d97706;
+        border-radius: 20px;
+        padding: 22px;
+        min-height: 180px;
+        margin-bottom: 14px;
+    }
 
-        .option-card-selected {
-            background: #fff0cf;
-            border: 3px solid #d97706;
-            border-radius: 20px;
-            padding: 22px;
-            min-height: 180px;
-            margin-bottom: 14px;
-        }
+    .option-title {
+        font-size: 24px;
+        font-weight: 800;
+        color: #12355b;
+        margin-bottom: 8px;
+    }
 
-        .option-title {
-            font-size: 24px;
-            font-weight: 800;
-            color: #12355b;
-            margin-bottom: 8px;
-        }
+    .option-price {
+        font-size: 32px;
+        font-weight: 900;
+        color: #b45309;
+        margin: 8px 0;
+    }
 
-        .option-price {
-            font-size: 32px;
-            font-weight: 900;
-            color: #b45309;
-            margin: 8px 0;
-        }
+    .option-text {
+        font-size: 16px;
+        color: #475569;
+        line-height: 1.45;
+    }
 
-        .option-text {
-            font-size: 16px;
-            color: #475569;
-            line-height: 1.45;
-        }
+    .item-card {
+        background: #fffaf0;
+        border: 2px solid #efd3a1;
+        border-radius: 18px;
+        padding: 18px;
+        min-height: 130px;
+        margin-bottom: 10px;
+    }
 
-        .item-card {
-            background: #fffaf0;
-            border: 2px solid #efd3a1;
-            border-radius: 18px;
-            padding: 18px;
-            min-height: 130px;
-            margin-bottom: 10px;
-        }
+    .item-card-selected {
+        background: #ecfccb;
+        border: 3px solid #65a30d;
+        border-radius: 18px;
+        padding: 18px;
+        min-height: 130px;
+        margin-bottom: 10px;
+    }
 
-        .item-card-selected {
-            background: #ecfccb;
-            border: 3px solid #65a30d;
-            border-radius: 18px;
-            padding: 18px;
-            min-height: 130px;
-            margin-bottom: 10px;
-        }
+    .item-title {
+        font-size: 18px;
+        font-weight: 800;
+        color: #12355b;
+    }
 
-        .item-title {
-            font-size: 18px;
-            font-weight: 800;
-            color: #12355b;
-        }
+    .item-vagas {
+        font-size: 14px;
+        color: #64748b;
+        margin-top: 8px;
+    }
 
-        .item-vagas {
-            font-size: 14px;
-            color: #64748b;
-            margin-top: 8px;
-        }
+    .pix-box {
+        background: #12355b;
+        color: #fff7e8;
+        border-radius: 20px;
+        padding: 24px;
+        margin: 18px 0;
+        border: 2px dashed #f6c453;
+    }
 
-        .pix-box {
-            background: #12355b;
-            color: #fff7e8;
-            border-radius: 20px;
-            padding: 24px;
-            margin: 18px 0;
-            border: 2px dashed #f6c453;
-        }
+    .pix-box code {
+        background: rgba(255,255,255,0.14);
+        color: #ffffff;
+        padding: 10px 12px;
+        border-radius: 10px;
+        display: inline-block;
+        margin-top: 8px;
+        font-size: 18px;
+    }
 
-        .pix-box code {
-            background: rgba(255,255,255,0.14);
-            color: #ffffff;
-            padding: 10px 12px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-top: 8px;
-            font-size: 18px;
-        }
+    .summary-box {
+        background: #fef3c7;
+        border-radius: 18px;
+        padding: 20px;
+        margin: 18px 0;
+        border: 1px solid #f59e0b;
+        color: #1f2933;
+    }
 
-        .summary-box {
-            background: #fef3c7;
-            border-radius: 18px;
-            padding: 20px;
-            margin: 18px 0;
-            border: 1px solid #f59e0b;
-            color: #1f2933;
-        }
+    div[data-testid="stMetric"] {
+        background: #ffffff;
+        padding: 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(168, 91, 31, 0.18);
+        box-shadow: 0 8px 22px rgba(80, 45, 20, 0.08);
+    }
 
-        .success-box {
-            background: #ecfccb;
-            border-radius: 18px;
-            padding: 18px;
-            margin: 18px 0;
-            border: 1px solid #65a30d;
-            color: #365314;
-            font-weight: 700;
-        }
+    .stButton > button {
+        border-radius: 999px;
+        font-weight: 800;
+        border: none;
+        background: #d97706;
+        color: #ffffff;
+        padding: 0.65rem 1.2rem;
+    }
 
-        div[data-testid="stMetric"] {
-            background: #ffffff;
-            padding: 18px;
-            border-radius: 18px;
-            border: 1px solid rgba(168, 91, 31, 0.18);
-            box-shadow: 0 8px 22px rgba(80, 45, 20, 0.08);
-        }
+    .stButton > button:hover {
+        background: #b45309;
+        color: #ffffff;
+        border: none;
+    }
 
-        .stButton > button {
-            border-radius: 999px;
-            font-weight: 800;
-            border: none;
-            background: #d97706;
-            color: #ffffff;
-            padding: 0.65rem 1.2rem;
-        }
+    .secondary-note {
+        color: #64748b;
+        font-size: 14px;
+    }
 
-        .stButton > button:hover {
-            background: #b45309;
-            color: #ffffff;
-            border: none;
-        }
+    .footer-note {
+        text-align: center;
+        color: #64748b;
+        font-size: 13px;
+        margin-top: 28px;
+    }
 
-        .secondary-note {
-            color: #64748b;
-            font-size: 14px;
-        }
-
-        .footer-note {
-            text-align: center;
-            color: #64748b;
-            font-size: 13px;
-            margin-top: 28px;
-        }
-    </style>
+    img {
+        border-radius: 22px;
+        box-shadow: 0 14px 40px rgba(80, 45, 20, 0.16);
+        border: 1px solid rgba(168, 91, 31, 0.18);
+    }
+</style>
     """,
     unsafe_allow_html=True,
 )
@@ -295,6 +282,7 @@ def buscar_itens_disponiveis():
     )
 
     ocupados = {}
+
     for participante in participantes_response.data:
         item = participante.get("item_levar")
         if item:
@@ -322,7 +310,10 @@ def buscar_itens_disponiveis():
 def salvar_comprovante(arquivo, email):
     extensao = arquivo.name.split(".")[-1].lower()
     nome_seguro = email.replace("@", "_").replace(".", "_")
-    nome_arquivo = f"{datetime.now().strftime('%Y%m%d%H%M%S')}_{nome_seguro}_{uuid4()}.{extensao}"
+    nome_arquivo = (
+        f"{datetime.now().strftime('%Y%m%d%H%M%S')}_"
+        f"{nome_seguro}_{uuid4()}.{extensao}"
+    )
 
     conteudo = arquivo.getvalue()
 
@@ -416,6 +407,7 @@ if "item_levar" not in st.session_state:
 
 def escolher_cota(tipo):
     st.session_state.tipo_cota = tipo
+
     if tipo == "completa_50":
         st.session_state.item_levar = None
 
@@ -425,7 +417,7 @@ def escolher_item(nome_item):
 
 
 # =========================
-# INTERFACE
+# DADOS PRINCIPAIS
 # =========================
 
 config = buscar_configuracao()
@@ -448,12 +440,20 @@ itens_disponiveis = buscar_itens_disponiveis()
 # HERO COM IMAGEM
 # =========================
 
-st.markdown('<div class="hero-wrapper">', unsafe_allow_html=True)
-
 banner_path = Path(__file__).parent / "banner_festa_julina.png"
 
 if banner_path.exists():
-    st.image(str(banner_path), use_container_width=True)
+    try:
+        st.image(str(banner_path), use_container_width=True)
+    except Exception:
+        st.error(
+            "O banner foi encontrado, mas não pôde ser carregado como imagem. "
+            "Verifique se o arquivo enviado no GitHub é realmente um PNG válido."
+        )
+        st.write("Arquivo encontrado:")
+        st.code(str(banner_path))
+        st.write("Tamanho do arquivo em bytes:")
+        st.code(str(banner_path.stat().st_size))
 else:
     st.error(
         "Banner não encontrado. Confirme se o arquivo banner_festa_julina.png "
@@ -462,36 +462,35 @@ else:
     st.write("Arquivos encontrados no projeto:")
     st.write([p.name for p in Path(__file__).parent.iterdir()])
 
-st.markdown("</div>", unsafe_allow_html=True)
-
 
 # =========================
 # INTRODUÇÃO
 # =========================
 
 st.markdown(
-    """
-    <div class="intro-card">
-        <h2>Que bom termos sua participação esse ano!</h2>
-        <p>
-            Para facilitar a organização da festa, este ano a inscrição será feita antecipadamente.
-            Assim conseguimos controlar melhor as comidas, bebidas, estrutura e os itens que cada pessoa vai levar.
-        </p>
+"""
+<div class="intro-card">
+<h2>Que bom termos sua participação esse ano!</h2>
+<p>
+Para facilitar a organização da festa, este ano a inscrição será feita antecipadamente.
+Assim conseguimos controlar melhor as comidas, bebidas, estrutura e os itens que cada pessoa vai levar.
+</p>
 
-        <div class="how-card">
-            <h3>Como funciona?</h3>
-            🎟️ <strong>Cota R$50:</strong> você participa e não precisa levar nada.<br>
-            🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>
-            A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.
-        </div>
+<div class="how-card">
+<h3>Como funciona?</h3>
+🎟️ <strong>Cota R$50:</strong> você participa e não precisa levar nada.<br>
+🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>
+A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.
+</div>
 
-        <div class="notice">
-            Garanta sua inscrição. As vagas são limitadas!
-        </div>
-    </div>
-    """,
+<div class="notice">
+Garanta sua inscrição. As vagas são limitadas!
+</div>
+</div>
+""",
     unsafe_allow_html=True,
 )
+
 
 col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
 
@@ -510,19 +509,21 @@ aba_publica, aba_admin = st.tabs(["🎉 Inscrição", "🔐 Admin"])
 with aba_publica:
     if not st.session_state.mostrar_inscricao:
         st.markdown(
-            """
-            <div class="section-card">
-                <h3>Pronto para participar?</h3>
-                <p>
-                    Clique no botão <strong>Quero me inscrever</strong> acima para abrir o formulário.
-                </p>
-            </div>
-            """,
+"""
+<div class="section-card">
+<h3>Pronto para participar?</h3>
+<p>
+Clique no botão <strong>Quero me inscrever</strong> acima para abrir o formulário.
+</p>
+</div>
+""",
             unsafe_allow_html=True,
         )
     else:
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.subheader("1. Seus dados")
+        st.markdown(
+            '<div class="section-card"><h3>1. Seus dados</h3>',
+            unsafe_allow_html=True,
+        )
 
         nome = st.text_input("Nome completo")
         email = st.text_input("E-mail")
@@ -530,8 +531,10 @@ with aba_publica:
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-        st.markdown('<div class="section-card">', unsafe_allow_html=True)
-        st.subheader("2. Escolha sua participação")
+        st.markdown(
+            '<div class="section-card"><h3>2. Escolha sua participação</h3>',
+            unsafe_allow_html=True,
+        )
 
         col1, col2 = st.columns(2)
         col1.metric("Cotas R$50 disponíveis", vagas_50)
@@ -540,21 +543,26 @@ with aba_publica:
         col_cota_50, col_cota_25 = st.columns(2)
 
         with col_cota_50:
-            classe = "option-card-selected" if st.session_state.tipo_cota == "completa_50" else "option-card"
+            classe = (
+                "option-card-selected"
+                if st.session_state.tipo_cota == "completa_50"
+                else "option-card"
+            )
+
             st.markdown(
                 f"""
-                <div class="{classe}">
-                    <div class="option-title">🎟️ Cota completa</div>
-                    <div class="option-price">R$50</div>
-                    <div class="option-text">
-                        Você participa da festa e não precisa levar nenhum item.
-                    </div>
-                    <br>
-                    <div class="secondary-note">
-                        Vagas disponíveis: {vagas_50}
-                    </div>
-                </div>
-                """,
+<div class="{classe}">
+<div class="option-title">🎟️ Cota completa</div>
+<div class="option-price">R$50</div>
+<div class="option-text">
+Você participa da festa e não precisa levar nenhum item.
+</div>
+<br>
+<div class="secondary-note">
+Vagas disponíveis: {vagas_50}
+</div>
+</div>
+""",
                 unsafe_allow_html=True,
             )
 
@@ -566,21 +574,26 @@ with aba_publica:
                 st.warning("Cota esgotada.")
 
         with col_cota_25:
-            classe = "option-card-selected" if st.session_state.tipo_cota == "reduzida_25" else "option-card"
+            classe = (
+                "option-card-selected"
+                if st.session_state.tipo_cota == "reduzida_25"
+                else "option-card"
+            )
+
             st.markdown(
                 f"""
-                <div class="{classe}">
-                    <div class="option-title">🧺 Cota com item</div>
-                    <div class="option-price">R$25</div>
-                    <div class="option-text">
-                        Você participa da festa e escolhe um item para levar no dia.
-                    </div>
-                    <br>
-                    <div class="secondary-note">
-                        Vagas disponíveis: {vagas_25}
-                    </div>
-                </div>
-                """,
+<div class="{classe}">
+<div class="option-title">🧺 Cota com item</div>
+<div class="option-price">R$25</div>
+<div class="option-text">
+Você participa da festa e escolhe um item para levar no dia.
+</div>
+<br>
+<div class="secondary-note">
+Vagas disponíveis: {vagas_25}
+</div>
+</div>
+""",
                 unsafe_allow_html=True,
             )
 
@@ -594,8 +607,10 @@ with aba_publica:
         st.markdown("</div>", unsafe_allow_html=True)
 
         if st.session_state.tipo_cota == "reduzida_25":
-            st.markdown('<div class="section-card">', unsafe_allow_html=True)
-            st.subheader("3. Escolha o item que você vai levar")
+            st.markdown(
+                '<div class="section-card"><h3>3. Escolha o item que você vai levar</h3>',
+                unsafe_allow_html=True,
+            )
 
             st.write("Selecione uma das opções disponíveis abaixo.")
 
@@ -612,13 +627,13 @@ with aba_publica:
 
                         st.markdown(
                             f"""
-                            <div class="{classe}">
-                                <div class="item-title">🧺 {item["nome"]}</div>
-                                <div class="item-vagas">
-                                    {item["vagas_restantes"]} vaga(s) disponível(is)
-                                </div>
-                            </div>
-                            """,
+<div class="{classe}">
+<div class="item-title">🧺 {item["nome"]}</div>
+<div class="item-vagas">
+{item["vagas_restantes"]} vaga(s) disponível(is)
+</div>
+</div>
+""",
                             unsafe_allow_html=True,
                         )
 
@@ -633,38 +648,45 @@ with aba_publica:
             st.markdown("</div>", unsafe_allow_html=True)
 
         if st.session_state.tipo_cota:
-            valor_cota = valor_50 if st.session_state.tipo_cota == "completa_50" else valor_25
+            valor_cota = (
+                valor_50
+                if st.session_state.tipo_cota == "completa_50"
+                else valor_25
+            )
+
             tipo_texto = (
                 "Cota R$50 - Não preciso levar nada"
                 if st.session_state.tipo_cota == "completa_50"
                 else "Cota R$25 - Vou levar um item"
             )
 
-            st.markdown('<div class="section-card">', unsafe_allow_html=True)
-            st.subheader("4. Resumo e pagamento")
+            st.markdown(
+                '<div class="section-card"><h3>4. Resumo e pagamento</h3>',
+                unsafe_allow_html=True,
+            )
 
             item_resumo = st.session_state.item_levar or "-"
 
             st.markdown(
                 f"""
-                <div class="summary-box">
-                    <strong>Participação escolhida:</strong> {tipo_texto}<br>
-                    <strong>Item para levar:</strong> {item_resumo}<br>
-                    <strong>Valor do Pix:</strong> R$ {valor_cota:.2f}
-                </div>
-                """,
+<div class="summary-box">
+<strong>Participação escolhida:</strong> {tipo_texto}<br>
+<strong>Item para levar:</strong> {item_resumo}<br>
+<strong>Valor do Pix:</strong> R$ {valor_cota:.2f}
+</div>
+""",
                 unsafe_allow_html=True,
             )
 
             st.markdown(
                 f"""
-                <div class="pix-box">
-                    <h3 style="color:#fff7e8; margin-top:0;">Dados para Pix</h3>
-                    <strong>Recebedor:</strong> {config['nome_recebedor_pix']}<br>
-                    <strong>Chave Pix:</strong><br>
-                    <code>{config["chave_pix"]}</code>
-                </div>
-                """,
+<div class="pix-box">
+<h3 style="color:#fff7e8; margin-top:0;">Dados para Pix</h3>
+<strong>Recebedor:</strong> {config['nome_recebedor_pix']}<br>
+<strong>Chave Pix:</strong><br>
+<code>{config["chave_pix"]}</code>
+</div>
+""",
                 unsafe_allow_html=True,
             )
 
@@ -676,7 +698,10 @@ with aba_publica:
             if st.button("Confirmar minha inscrição", use_container_width=True):
                 if not nome or not email or not whatsapp:
                     st.error("Preencha nome, e-mail e WhatsApp antes de confirmar.")
-                elif st.session_state.tipo_cota == "reduzida_25" and not st.session_state.item_levar:
+                elif (
+                    st.session_state.tipo_cota == "reduzida_25"
+                    and not st.session_state.item_levar
+                ):
                     st.error("Escolha o item que você vai levar.")
                 elif not comprovante:
                     st.error("Anexe o comprovante do Pix.")
@@ -755,6 +780,7 @@ with aba_admin:
                     st.write(f"**Arquivo do comprovante:** {comprovante_path or '-'}")
 
                     link_comprovante = gerar_link_comprovante(comprovante_path)
+
                     if link_comprovante:
                         st.link_button("Abrir comprovante", link_comprovante)
 
@@ -780,6 +806,7 @@ with aba_admin:
             st.dataframe(df, use_container_width=True)
 
             csv = df.to_csv(index=False).encode("utf-8-sig")
+
             st.download_button(
                 "Baixar lista em CSV",
                 data=csv,
@@ -789,10 +816,10 @@ with aba_admin:
 
 
 st.markdown(
-    """
-    <div class="footer-note">
-        Festa Julina da Mary • Organização das inscrições e contribuições
-    </div>
-    """,
+"""
+<div class="footer-note">
+Festa Julina da Mary • Organização das inscrições e contribuições
+</div>
+""",
     unsafe_allow_html=True,
 )
