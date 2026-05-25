@@ -7,7 +7,7 @@ from supabase import create_client
 
 
 st.set_page_config(
-    page_title="Festa Junina da Mary",
+    page_title="Festa Julina da Mary",
     page_icon="🌽",
     layout="centered",
 )
@@ -21,81 +21,210 @@ st.markdown(
     """
     <style>
         .stApp {
-            background: linear-gradient(180deg, #07182f 0%, #101010 45%, #15100b 100%);
-            color: #fff;
+            background: #fff7e8;
+            color: #1f2933;
         }
 
         .main .block-container {
-            max-width: 920px;
-            padding-top: 2rem;
+            max-width: 980px;
+            padding-top: 1.5rem;
+            padding-bottom: 4rem;
         }
 
-        .hero {
-            background: linear-gradient(135deg, #102b4d 0%, #7a2518 55%, #d98722 100%);
-            padding: 28px;
+        h1, h2, h3 {
+            color: #12355b;
+        }
+
+        .hero-wrapper {
+            background: #ffffff;
+            padding: 18px;
+            border-radius: 24px;
+            box-shadow: 0 14px 40px rgba(80, 45, 20, 0.14);
+            border: 1px solid rgba(168, 91, 31, 0.18);
+            margin-bottom: 26px;
+        }
+
+        .intro-card {
+            background: #ffffff;
             border-radius: 22px;
-            border: 1px solid rgba(255,255,255,0.15);
-            box-shadow: 0 18px 50px rgba(0,0,0,0.35);
-            margin-bottom: 24px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(80, 45, 20, 0.10);
+            border: 1px solid rgba(168, 91, 31, 0.16);
+            margin: 22px 0;
         }
 
-        .hero h1 {
-            margin: 0;
-            font-size: 42px;
-            line-height: 1.05;
-            color: #fff7df;
-        }
-
-        .hero p {
+        .intro-card p {
             font-size: 18px;
-            color: #fff3cf;
-            margin-top: 12px;
+            line-height: 1.6;
+            color: #334155;
         }
 
-        .badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.14);
-            padding: 7px 12px;
-            border-radius: 999px;
+        .how-card {
+            background: #fff0cf;
+            border-left: 8px solid #d97706;
+            border-radius: 18px;
+            padding: 22px;
+            margin: 18px 0;
+            color: #1f2933;
+        }
+
+        .notice {
+            background: #12355b;
+            color: #fff7e8;
+            padding: 18px 22px;
+            border-radius: 18px;
+            margin: 18px 0;
+            font-weight: 600;
+        }
+
+        .section-card {
+            background: #ffffff;
+            border-radius: 22px;
+            padding: 28px;
+            box-shadow: 0 10px 30px rgba(80, 45, 20, 0.10);
+            border: 1px solid rgba(168, 91, 31, 0.16);
+            margin: 24px 0;
+        }
+
+        .option-card {
+            background: #fffaf0;
+            border: 2px solid #efd3a1;
+            border-radius: 20px;
+            padding: 22px;
+            min-height: 180px;
             margin-bottom: 14px;
-            color: #fff7df;
-            font-weight: 700;
         }
 
-        .card-info {
-            background: rgba(255, 247, 223, 0.08);
-            border: 1px solid rgba(255, 247, 223, 0.18);
-            padding: 18px;
-            border-radius: 18px;
-            margin: 14px 0;
+        .option-card-selected {
+            background: #fff0cf;
+            border: 3px solid #d97706;
+            border-radius: 20px;
+            padding: 22px;
+            min-height: 180px;
+            margin-bottom: 14px;
         }
 
-        .card-option {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            padding: 18px;
+        .option-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: #12355b;
+            margin-bottom: 8px;
+        }
+
+        .option-price {
+            font-size: 32px;
+            font-weight: 900;
+            color: #b45309;
+            margin: 8px 0;
+        }
+
+        .option-text {
+            font-size: 16px;
+            color: #475569;
+            line-height: 1.45;
+        }
+
+        .item-card {
+            background: #fffaf0;
+            border: 2px solid #efd3a1;
             border-radius: 18px;
-            margin-bottom: 12px;
+            padding: 18px;
+            min-height: 130px;
+            margin-bottom: 10px;
+        }
+
+        .item-card-selected {
+            background: #ecfccb;
+            border: 3px solid #65a30d;
+            border-radius: 18px;
+            padding: 18px;
+            min-height: 130px;
+            margin-bottom: 10px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 800;
+            color: #12355b;
+        }
+
+        .item-vagas {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 8px;
         }
 
         .pix-box {
-            background: #1f2937;
-            border: 1px dashed #f5b94c;
+            background: #12355b;
+            color: #fff7e8;
+            border-radius: 20px;
+            padding: 24px;
+            margin: 18px 0;
+            border: 2px dashed #f6c453;
+        }
+
+        .pix-box code {
+            background: rgba(255,255,255,0.14);
+            color: #ffffff;
+            padding: 10px 12px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 8px;
+            font-size: 18px;
+        }
+
+        .summary-box {
+            background: #fef3c7;
+            border-radius: 18px;
+            padding: 20px;
+            margin: 18px 0;
+            border: 1px solid #f59e0b;
+            color: #1f2933;
+        }
+
+        .success-box {
+            background: #ecfccb;
             border-radius: 18px;
             padding: 18px;
-            margin-top: 18px;
+            margin: 18px 0;
+            border: 1px solid #65a30d;
+            color: #365314;
+            font-weight: 700;
         }
 
         div[data-testid="stMetric"] {
-            background: rgba(255, 255, 255, 0.08);
+            background: #ffffff;
             padding: 18px;
             border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.14);
+            border: 1px solid rgba(168, 91, 31, 0.18);
+            box-shadow: 0 8px 22px rgba(80, 45, 20, 0.08);
         }
 
-        .small-note {
+        .stButton > button {
+            border-radius: 999px;
+            font-weight: 800;
+            border: none;
+            background: #d97706;
+            color: #ffffff;
+            padding: 0.65rem 1.2rem;
+        }
+
+        .stButton > button:hover {
+            background: #b45309;
+            color: #ffffff;
+            border: none;
+        }
+
+        .secondary-note {
+            color: #64748b;
             font-size: 14px;
-            color: #f8d996;
+        }
+
+        .footer-note {
+            text-align: center;
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 28px;
         }
     </style>
     """,
@@ -256,139 +385,256 @@ def atualizar_status(participante_id, novo_status):
     )
 
 
+def gerar_link_comprovante(caminho):
+    if not caminho:
+        return None
+
+    try:
+        response = supabase.storage.from_("comprovantes").create_signed_url(
+            path=caminho,
+            expires_in=3600,
+        )
+        return response.get("signedURL") or response.get("signedUrl")
+    except Exception:
+        return None
+
+
+# =========================
+# SESSION STATE
+# =========================
+
+if "mostrar_inscricao" not in st.session_state:
+    st.session_state.mostrar_inscricao = False
+
+if "tipo_cota" not in st.session_state:
+    st.session_state.tipo_cota = None
+
+if "item_levar" not in st.session_state:
+    st.session_state.item_levar = None
+
+
+def escolher_cota(tipo):
+    st.session_state.tipo_cota = tipo
+    if tipo == "completa_50":
+        st.session_state.item_levar = None
+
+
+def escolher_item(nome_item):
+    st.session_state.item_levar = nome_item
+
+
 # =========================
 # INTERFACE
 # =========================
 
 config = buscar_configuracao()
 
+limite_50 = int(config["limite_cota_50"])
+limite_25 = int(config["limite_cota_25"])
+valor_50 = float(config["valor_cota_50"])
+valor_25 = float(config["valor_cota_25"])
+
+total_50 = contar_participantes_por_cota("completa_50")
+total_25 = contar_participantes_por_cota("reduzida_25")
+
+vagas_50 = max(limite_50 - total_50, 0)
+vagas_25 = max(limite_25 - total_25, 0)
+
+itens_disponiveis = buscar_itens_disponiveis()
+
+
+st.markdown('<div class="hero-wrapper">', unsafe_allow_html=True)
+st.image("banner_festa_julina.png", use_container_width=True)
+st.markdown("</div>", unsafe_allow_html=True)
+
+
 st.markdown(
     """
-    <div class="hero">
-        <div class="badge">🔥 Save the date • 18 de Julho</div>
-        <h1>🌽 Festa Junina da Mary</h1>
+    <div class="intro-card">
+        <h2>Que bom termos sua participação esse ano!</h2>
         <p>
-            Escolha sua forma de participação, envie o comprovante do Pix
-            e ajude a organizar os comes, bebidas e itens da festa.
+            Para facilitar a organização da festa, este ano a inscrição será feita antecipadamente.
+            Assim conseguimos controlar melhor as comidas, bebidas, estrutura e os itens que cada pessoa vai levar.
         </p>
+
+        <div class="how-card">
+            <h3>Como funciona?</h3>
+            🎟️ <strong>Cota R$50:</strong> você participa e não precisa levar nada.<br>
+            🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>
+            A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.
+        </div>
+
+        <div class="notice">
+            Garanta sua inscrição. As vagas são limitadas!
+        </div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
-st.markdown(
-    """
-    <div class="card-info">
-        <strong>Como funciona?</strong><br><br>
-        <strong>🎟️ Cota R$50:</strong> você participa e não precisa levar nada.<br>
-        <strong>🧺 Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>
-        A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.
-    </div>
-    """,
-    unsafe_allow_html=True,
-)
+col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
 
-aba_publica, aba_admin = st.tabs(["🎉 Participar", "🔐 Admin"])
+with col_btn2:
+    if st.button("Quero me inscrever", use_container_width=True):
+        st.session_state.mostrar_inscricao = True
+
+
+aba_publica, aba_admin = st.tabs(["🎉 Inscrição", "🔐 Admin"])
 
 
 with aba_publica:
-    st.subheader("Quero participar")
-
-    limite_50 = int(config["limite_cota_50"])
-    limite_25 = int(config["limite_cota_25"])
-    valor_50 = float(config["valor_cota_50"])
-    valor_25 = float(config["valor_cota_25"])
-
-    total_50 = contar_participantes_por_cota("completa_50")
-    total_25 = contar_participantes_por_cota("reduzida_25")
-
-    vagas_50 = max(limite_50 - total_50, 0)
-    vagas_25 = max(limite_25 - total_25, 0)
-
-    col1, col2 = st.columns(2)
-    col1.metric("Cota R$50 disponíveis", vagas_50)
-    col2.metric("Cota R$25 + item disponíveis", vagas_25)
-
-    itens_disponiveis = buscar_itens_disponiveis()
-
-    opcoes_cota = []
-
-    if vagas_50 > 0:
-        opcoes_cota.append("R$50 - Não preciso levar nada")
-
-    if vagas_25 > 0 and len(itens_disponiveis) > 0:
-        opcoes_cota.append("R$25 - Vou levar um item")
-
-    if not opcoes_cota:
-        st.warning("As vagas foram preenchidas.")
-    else:
-        st.markdown("### 1. Escolha sua forma de participação")
-
-        escolha_cota = st.radio(
-            "Selecione uma opção:",
-            opcoes_cota,
-            key="escolha_cota",
+    if not st.session_state.mostrar_inscricao:
+        st.markdown(
+            """
+            <div class="section-card">
+                <h3>Pronto para participar?</h3>
+                <p>
+                    Clique no botão <strong>Quero me inscrever</strong> acima para abrir o formulário.
+                </p>
+            </div>
+            """,
+            unsafe_allow_html=True,
         )
+    else:
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+        st.subheader("1. Seus dados")
 
-        item_escolhido = None
-        tipo_cota = None
-        valor_cota = None
+        nome = st.text_input("Nome completo")
+        email = st.text_input("E-mail")
+        whatsapp = st.text_input("WhatsApp")
 
-        if escolha_cota.startswith("R$50"):
-            tipo_cota = "completa_50"
-            valor_cota = valor_50
+        st.markdown("</div>", unsafe_allow_html=True)
 
+        st.markdown('<div class="section-card">', unsafe_allow_html=True)
+        st.subheader("2. Escolha sua participação")
+
+        col1, col2 = st.columns(2)
+        col1.metric("Cotas R$50 disponíveis", vagas_50)
+        col2.metric("Cotas R$25 + item disponíveis", vagas_25)
+
+        col_cota_50, col_cota_25 = st.columns(2)
+
+        with col_cota_50:
+            classe = "option-card-selected" if st.session_state.tipo_cota == "completa_50" else "option-card"
             st.markdown(
-                """
-                <div class="card-option">
-                    <strong>🎟️ Você escolheu a cota de R$50.</strong><br>
-                    Você não precisa levar nenhum item. Sua contribuição ajuda a cobrir
-                    os itens principais da festa.
+                f"""
+                <div class="{classe}">
+                    <div class="option-title">🎟️ Cota completa</div>
+                    <div class="option-price">R$50</div>
+                    <div class="option-text">
+                        Você participa da festa e não precisa levar nenhum item.
+                    </div>
+                    <br>
+                    <div class="secondary-note">
+                        Vagas disponíveis: {vagas_50}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-        if escolha_cota.startswith("R$25"):
-            tipo_cota = "reduzida_25"
-            valor_cota = valor_25
+            if vagas_50 > 0:
+                if st.button("Escolher R$50", use_container_width=True):
+                    escolher_cota("completa_50")
+                    st.rerun()
+            else:
+                st.warning("Cota esgotada.")
 
+        with col_cota_25:
+            classe = "option-card-selected" if st.session_state.tipo_cota == "reduzida_25" else "option-card"
             st.markdown(
-                """
-                <div class="card-option">
-                    <strong>🧺 Você escolheu a cota de R$25.</strong><br>
-                    Agora selecione abaixo qual item você vai levar no dia da festa.
+                f"""
+                <div class="{classe}">
+                    <div class="option-title">🧺 Cota com item</div>
+                    <div class="option-price">R$25</div>
+                    <div class="option-text">
+                        Você participa da festa e escolhe um item para levar no dia.
+                    </div>
+                    <br>
+                    <div class="secondary-note">
+                        Vagas disponíveis: {vagas_25}
+                    </div>
                 </div>
                 """,
                 unsafe_allow_html=True,
             )
 
-            nomes_itens = [
-                f"{item['nome']} — {item['vagas_restantes']} vaga(s) disponível(is)"
-                for item in itens_disponiveis
-            ]
+            if vagas_25 > 0 and len(itens_disponiveis) > 0:
+                if st.button("Escolher R$25", use_container_width=True):
+                    escolher_cota("reduzida_25")
+                    st.rerun()
+            else:
+                st.warning("Cota esgotada.")
 
-            item_label = st.selectbox(
-                "Item que você vai levar:",
-                nomes_itens,
-                key="item_escolhido",
+        st.markdown("</div>", unsafe_allow_html=True)
+
+        if st.session_state.tipo_cota == "reduzida_25":
+            st.markdown('<div class="section-card">', unsafe_allow_html=True)
+            st.subheader("3. Escolha o item que você vai levar")
+
+            st.write("Selecione uma das opções disponíveis abaixo.")
+
+            itens_por_linha = 3
+
+            for i in range(0, len(itens_disponiveis), itens_por_linha):
+                cols = st.columns(itens_por_linha)
+                grupo = itens_disponiveis[i:i + itens_por_linha]
+
+                for col, item in zip(cols, grupo):
+                    with col:
+                        selecionado = st.session_state.item_levar == item["nome"]
+                        classe = "item-card-selected" if selecionado else "item-card"
+
+                        st.markdown(
+                            f"""
+                            <div class="{classe}">
+                                <div class="item-title">🧺 {item["nome"]}</div>
+                                <div class="item-vagas">
+                                    {item["vagas_restantes"]} vaga(s) disponível(is)
+                                </div>
+                            </div>
+                            """,
+                            unsafe_allow_html=True,
+                        )
+
+                        if st.button(
+                            "Selecionar",
+                            key=f"item_{item['nome']}",
+                            use_container_width=True,
+                        ):
+                            escolher_item(item["nome"])
+                            st.rerun()
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        if st.session_state.tipo_cota:
+            valor_cota = valor_50 if st.session_state.tipo_cota == "completa_50" else valor_25
+            tipo_texto = (
+                "Cota R$50 - Não preciso levar nada"
+                if st.session_state.tipo_cota == "completa_50"
+                else "Cota R$25 - Vou levar um item"
             )
 
-            item_escolhido = item_label.split(" — ")[0]
+            st.markdown('<div class="section-card">', unsafe_allow_html=True)
+            st.subheader("4. Resumo e pagamento")
 
-        st.markdown("### 2. Preencha seus dados")
+            item_resumo = st.session_state.item_levar or "-"
 
-        with st.form("form_participacao"):
-            nome = st.text_input("Nome completo")
-            email = st.text_input("E-mail")
-            whatsapp = st.text_input("WhatsApp")
-
-            st.markdown("### 3. Faça o Pix")
+            st.markdown(
+                f"""
+                <div class="summary-box">
+                    <strong>Participação escolhida:</strong> {tipo_texto}<br>
+                    <strong>Item para levar:</strong> {item_resumo}<br>
+                    <strong>Valor do Pix:</strong> R$ {valor_cota:.2f}
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
             st.markdown(
                 f"""
                 <div class="pix-box">
-                    <strong>Valor:</strong> R$ {valor_cota:.2f}<br>
+                    <h3 style="color:#fff7e8; margin-top:0;">Dados para Pix</h3>
                     <strong>Recebedor:</strong> {config['nome_recebedor_pix']}<br>
                     <strong>Chave Pix:</strong><br>
                     <code>{config["chave_pix"]}</code>
@@ -397,22 +643,15 @@ with aba_publica:
                 unsafe_allow_html=True,
             )
 
-            st.markdown(
-                '<p class="small-note">Depois de pagar, anexe o comprovante abaixo.</p>',
-                unsafe_allow_html=True,
-            )
-
             comprovante = st.file_uploader(
                 "Anexe o comprovante do Pix",
                 type=["png", "jpg", "jpeg", "pdf"],
             )
 
-            enviar = st.form_submit_button("Enviar participação")
-
-            if enviar:
+            if st.button("Confirmar minha inscrição", use_container_width=True):
                 if not nome or not email or not whatsapp:
-                    st.error("Preencha nome, e-mail e WhatsApp.")
-                elif tipo_cota == "reduzida_25" and not item_escolhido:
+                    st.error("Preencha nome, e-mail e WhatsApp antes de confirmar.")
+                elif st.session_state.tipo_cota == "reduzida_25" and not st.session_state.item_levar:
                     st.error("Escolha o item que você vai levar.")
                 elif not comprovante:
                     st.error("Anexe o comprovante do Pix.")
@@ -424,21 +663,27 @@ with aba_publica:
                             nome=nome,
                             email=email,
                             whatsapp=whatsapp,
-                            tipo_cota=tipo_cota,
+                            tipo_cota=st.session_state.tipo_cota,
                             valor_cota=valor_cota,
-                            item_levar=item_escolhido,
+                            item_levar=st.session_state.item_levar,
                             comprovante_url=comprovante_url,
                         )
 
+                        st.session_state.tipo_cota = None
+                        st.session_state.item_levar = None
+                        st.session_state.mostrar_inscricao = False
+
                         st.success(
-                            "Participação enviada com sucesso! "
-                            "O pagamento ficará aguardando conferência."
+                            "Inscrição enviada com sucesso! "
+                            "O pagamento ficará aguardando conferência da organização."
                         )
                         st.rerun()
 
                     except Exception as erro:
-                        st.error("Não foi possível salvar sua participação.")
+                        st.error("Não foi possível salvar sua inscrição.")
                         st.exception(erro)
+
+            st.markdown("</div>", unsafe_allow_html=True)
 
 
 with aba_admin:
@@ -469,14 +714,20 @@ with aba_admin:
 
             for participante in participantes:
                 with st.expander(
-                    f"{participante['nome']} - R$ {participante['valor_cota']}"
+                    f"{participante['nome']} - R$ {float(participante['valor_cota']):.2f}"
                 ):
                     st.write(f"**E-mail:** {participante['email']}")
                     st.write(f"**WhatsApp:** {participante.get('whatsapp', '')}")
                     st.write(f"**Tipo de cota:** {participante['tipo_cota']}")
                     st.write(f"**Item para levar:** {participante.get('item_levar') or '-'}")
                     st.write(f"**Status:** {participante['status_pagamento']}")
-                    st.write(f"**Comprovante salvo como:** {participante.get('comprovante_url') or '-'}")
+
+                    comprovante_path = participante.get("comprovante_url")
+                    st.write(f"**Arquivo do comprovante:** {comprovante_path or '-'}")
+
+                    link_comprovante = gerar_link_comprovante(comprovante_path)
+                    if link_comprovante:
+                        st.link_button("Abrir comprovante", link_comprovante)
 
                     status_opcoes = [
                         "aguardando_conferencia",
@@ -498,3 +749,21 @@ with aba_admin:
 
             st.markdown("### Tabela geral")
             st.dataframe(df, use_container_width=True)
+
+            csv = df.to_csv(index=False).encode("utf-8-sig")
+            st.download_button(
+                "Baixar lista em CSV",
+                data=csv,
+                file_name="participantes_festa_julina_mary.csv",
+                mime="text/csv",
+            )
+
+
+st.markdown(
+    """
+    <div class="footer-note">
+        Festa Julina da Mary • Organização das inscrições e contribuições
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
