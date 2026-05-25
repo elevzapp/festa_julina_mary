@@ -931,6 +931,84 @@ div[data-testid="stFileUploaderFile"] {
 }
 
 
+
+/* v14: layout mobile-first mais estável */
+.form-compact {
+    max-width: 720px !important;
+    margin: 0 auto !important;
+    text-align: center !important;
+}
+.form-compact .step-title {
+    font-size: clamp(2rem, 5vw, 4rem) !important;
+    font-weight: 950 !important;
+    letter-spacing: -0.035em !important;
+    line-height: 1.05 !important;
+    margin-bottom: 12px !important;
+}
+.form-compact .step-subtitle {
+    font-size: 1.15rem !important;
+    line-height: 1.55 !important;
+    margin-bottom: 0 !important;
+}
+.form-area-spacer { height: 8px; }
+
+.stButton > button,
+button[kind="secondary"],
+button[kind="primary"] {
+    width: 100% !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    white-space: nowrap !important;
+}
+.stButton > button p,
+button[kind="secondary"] p,
+button[kind="primary"] p {
+    white-space: nowrap !important;
+    color: #ffffff !important;
+}
+
+.upload-native-block {
+    background: transparent;
+    margin-top: 20px;
+    margin-bottom: 10px;
+}
+.upload-native-title {
+    font-size: 1.75rem;
+    font-weight: 950;
+    color: #111111;
+    margin-bottom: 6px;
+}
+.upload-native-note {
+    color: #64748b;
+    font-size: 1rem;
+    margin-bottom: 10px;
+}
+section[data-testid="stFileUploaderDropzone"] {
+    background: #ffffff !important;
+    border: 2px dashed #d8b981 !important;
+    border-radius: 18px !important;
+    padding: 16px !important;
+}
+section[data-testid="stFileUploaderDropzone"] > div {
+    padding: 0 !important;
+}
+section[data-testid="stFileUploaderDropzone"] small,
+section[data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"],
+section[data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"] * {
+    display: none !important;
+}
+div[data-testid="stFileUploaderFile"],
+div[data-testid="stFileUploaderFile"] * {
+    background: #fffaf0 !important;
+    color: #111111 !important;
+}
+div[data-testid="stFileUploaderFile"] {
+    border: 1px solid #efd3a1 !important;
+    border-radius: 12px !important;
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1364,9 +1442,7 @@ with form_col:
         for i in range(int(qtd_criancas)):
             criancas_nomes.append(st.text_input(f"Criança {i + 1}", key=f"crianca_nome_{i}"))
 
-    btn_left, btn_mid, btn_right = st.columns([1, 1.25, 1])
-    with btn_mid:
-        confirmar_participantes = st.button("Confirmar", use_container_width=True)
+    confirmar_participantes = st.button("Confirmar", use_container_width=True)
 
     if confirmar_participantes:
         adultos_ok = all(nome.strip() for nome in adultos_nomes)
@@ -1497,9 +1573,10 @@ with form_col:
         )
 
         st.markdown(
-            '<div class="upload-box">'
-            '<div class="upload-box-title">Anexo do Comprovante</div>'
-            '<div class="upload-box-note">Máximo de 200KB • PNG, JPG, PDF</div>',
+            '<div class="upload-native-block">'
+            '<div class="upload-native-title">Anexo do Comprovante</div>'
+            '<div class="upload-native-note">Máximo de 200KB • PNG, JPG, PDF</div>'
+            '</div>',
             unsafe_allow_html=True,
         )
         comprovante = st.file_uploader(
@@ -1507,11 +1584,14 @@ with form_col:
             type=["png", "jpg", "jpeg", "pdf"],
             label_visibility="collapsed",
         )
-        st.markdown('</div>', unsafe_allow_html=True)
+        if comprovante:
+            tamanho_kb = comprovante.size / 1024
+            if comprovante.size <= 200 * 1024:
+                st.success(f"Comprovante anexado: {comprovante.name} ({tamanho_kb:.0f}KB)")
+            else:
+                st.error(f"Arquivo anexado: {comprovante.name} ({tamanho_kb:.0f}KB). O limite é 200KB.")
 
-        btn_left, btn_mid, btn_right = st.columns([1.2, 1.6, 1.2])
-        with btn_mid:
-            confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
+        confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
 
         if confirmar_inscricao:
             if not formulario_cotas_ok:
