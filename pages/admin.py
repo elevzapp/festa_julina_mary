@@ -160,6 +160,46 @@ div[data-baseweb="select"] div {
     color: #111111 !important;
 }
 
+
+/* Dropdown do select claro */
+div[data-baseweb="popover"] {
+    background: #ffffff !important;
+    color: #111111 !important;
+}
+
+div[data-baseweb="popover"] * {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+}
+
+ul[role="listbox"],
+div[role="listbox"] {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border: 1px solid #e2c792 !important;
+}
+
+li[role="option"],
+div[role="option"] {
+    background: #ffffff !important;
+    color: #111111 !important;
+}
+
+li[role="option"]:hover,
+div[role="option"]:hover {
+    background: #fff1d6 !important;
+    color: #111111 !important;
+}
+
+.login-title-block {
+    max-width: 420px;
+    margin: 26px auto 8px auto;
+}
+
+.login-title-block h3 {
+    margin-bottom: 8px;
+}
+
 /* Expander claro */
 div[data-testid="stExpander"] {
     background: #ffffff !important;
@@ -482,24 +522,35 @@ st.markdown(
 senha_admin = st.secrets.get("ADMIN_PASSWORD", "admin123")
 
 if not st.session_state.admin_logado:
-    st.markdown('<div class="login-box">', unsafe_allow_html=True)
-    st.markdown("### Entrar no painel")
-    senha = st.text_input("Senha", type="password", key="senha_admin_input")
+    st.markdown(
+        '''<div class="login-title-block">
+            <h3>Entrar no painel</h3>
+            <div class="admin-subtitle">Digite a senha para acessar a conferência.</div>
+        </div>''',
+        unsafe_allow_html=True,
+    )
 
-    col_login, col_voltar = st.columns(2)
+    col_left, col_center, col_right = st.columns([1.4, 1, 1.4])
 
-    with col_login:
-        if st.button("Acessar", use_container_width=True):
-            if senha == senha_admin:
-                st.session_state.admin_logado = True
-                st.rerun()
-            else:
-                st.error("Senha incorreta.")
+    with col_center:
+        senha = st.text_input("Senha", type="password", key="senha_admin_input")
 
-    with col_voltar:
-        st.markdown('<a class="admin-link-button" href="/" style="display:block;">Voltar para inscrição</a>', unsafe_allow_html=True)
+        btn_col1, btn_col2 = st.columns(2)
 
-    st.markdown("</div>", unsafe_allow_html=True)
+        with btn_col1:
+            if st.button("Acessar", use_container_width=True):
+                if senha == senha_admin:
+                    st.session_state.admin_logado = True
+                    st.rerun()
+                else:
+                    st.error("Senha incorreta.")
+
+        with btn_col2:
+            st.markdown(
+                '<a class="admin-link-button" href="/" style="display:block;">Voltar</a>',
+                unsafe_allow_html=True,
+            )
+
     st.stop()
 
 
@@ -678,7 +729,7 @@ for participante in df.sort_values("criado_em", ascending=False).to_dict("record
             link_comprovante = gerar_link_comprovante(comprovante_path)
 
             if link_comprovante:
-                st.markdown(f'<a class="admin-link-button" href="{link_comprovante}" target="_blank" style="display:block;">Abrir comprovante</a>', unsafe_allow_html=True)
+                st.link_button("Abrir comprovante", link_comprovante, use_container_width=True)
             else:
                 st.caption("Sem comprovante anexado.")
 
