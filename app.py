@@ -159,8 +159,8 @@ li[aria-selected="true"] {
 }
 
 .banner-wrap {
-    width: 100%;
-    max-width: 1120px;
+    width: calc(100% - 72px);
+    max-width: 1760px;
     margin: 0 auto;
     padding: 0;
 }
@@ -480,12 +480,12 @@ button[data-testid="stBaseButton-secondary"],
 .success-card {
     max-width: 720px;
     margin: 42px auto;
-    background: #f0fdf4;
-    border: 2px solid #86efac;
+    background: #ffffff;
+    border: 1px solid #efd3a1;
     border-radius: 26px;
     padding: 32px;
     text-align: center;
-    box-shadow: 0 12px 28px rgba(22, 101, 52, 0.08);
+    box-shadow: 0 12px 28px rgba(90, 60, 20, 0.08);
 }
 
 .success-card h2 {
@@ -703,6 +703,10 @@ section[data-testid="stFileUploaderDropzone"] {
 }
 
 @media (max-width: 800px) {
+    .banner-wrap {
+        width: 100%;
+        max-width: 100%;
+    }
     .hero-grid {
         grid-template-columns: 1fr;
         gap: 26px;
@@ -1301,7 +1305,11 @@ if st.session_state.inscricao_concluida:
     <section class="section section-cream">
         <div class="success-card">
             <h2>Inscrição enviada com sucesso! 🎉</h2>
-            <p>Recebemos sua inscrição e o comprovante. O pagamento ficará aguardando conferência da organização.</p>
+            <p>
+                Nós já recebemos sua inscrição e o comprovante.<br>
+                O pagamento ficará aguardando conferência da organização.<br>
+                Nos vemos dia 18 de julho a partir das 19h 🌽🔥🍰
+            </p>
         </div>
     </section>
     ''')
@@ -1410,7 +1418,8 @@ html('''
         <div class="form-compact">
             <div class="step-title">Inscreva sua família</div>
             <div class="step-subtitle">
-                Preencha os dados do responsável e informe quem vai participar. Crianças até 10 anos não pagam.
+                Preencha os dados do responsável e informe quem vai participar.<br>
+                Crianças até 10 anos não pagam.
             </div>
         </div>
     </div>
