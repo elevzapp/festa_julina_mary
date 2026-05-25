@@ -43,15 +43,18 @@ st.markdown(
 }
 
 h1, h2, h3, h4, p, div, span, label {
-    color: var(--text);
+    color: var(--text) !important;
 }
 
-.admin-card {
+.admin-card, .login-box, .kpi-card {
     background: var(--card);
     border: 1px solid var(--line);
     border-radius: 24px;
-    padding: 28px;
     box-shadow: 0 10px 28px rgba(90, 60, 20, 0.08);
+}
+
+.admin-card {
+    padding: 28px;
     margin-bottom: 24px;
 }
 
@@ -59,23 +62,16 @@ h1, h2, h3, h4, p, div, span, label {
     font-size: 2.1rem;
     font-weight: 900;
     margin-bottom: 8px;
-    color: #111111;
 }
 
-.admin-subtitle {
-    font-size: 1rem;
-    color: var(--muted);
-    line-height: 1.5;
+.admin-subtitle, .small-note, .kpi-sub {
+    color: var(--muted) !important;
 }
 
 .login-box {
     max-width: 420px;
     margin: 30px auto;
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 22px;
     padding: 26px;
-    box-shadow: 0 10px 28px rgba(90, 60, 20, 0.08);
 }
 
 .section-title {
@@ -83,40 +79,24 @@ h1, h2, h3, h4, p, div, span, label {
     font-weight: 900;
     margin-top: 28px;
     margin-bottom: 12px;
-    color: #111111;
-}
-
-.small-note {
-    font-size: 0.92rem;
-    color: var(--muted);
 }
 
 .kpi-card {
-    background: #ffffff;
-    border: 1px solid var(--line);
-    border-radius: 20px;
     padding: 18px;
     min-height: 112px;
-    box-shadow: 0 6px 18px rgba(90, 60, 20, 0.05);
+    margin-bottom: 12px;
 }
 
 .kpi-label {
     font-size: 0.92rem;
-    color: var(--muted);
+    color: var(--muted) !important;
     margin-bottom: 8px;
     font-weight: 700;
 }
 
 .kpi-value {
     font-size: 1.9rem;
-    color: #111111;
     font-weight: 900;
-}
-
-.kpi-sub {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin-top: 6px;
 }
 
 .status-pill {
@@ -127,45 +107,46 @@ h1, h2, h3, h4, p, div, span, label {
     font-weight: 800;
 }
 
-.status-confirmado {
-    background: #dcfce7;
-    color: #166534;
-}
+.status-confirmado { background: #dcfce7; color: #166534 !important; }
+.status-aguardando { background: #fef3c7; color: #92400e !important; }
+.status-recusado { background: #fee2e2; color: #991b1b !important; }
 
-.status-aguardando {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.status-recusado {
-    background: #fee2e2;
-    color: #991b1b;
-}
-
+/* Botões Streamlit e links com aparência de botão */
 .stButton > button,
 button[kind="primary"],
-button[kind="secondary"] {
+button[kind="secondary"],
+div[data-testid="stLinkButton"] a,
+a.admin-link-button {
     border-radius: 999px !important;
     background: var(--orange) !important;
     border: none !important;
     color: #ffffff !important;
     font-weight: 800 !important;
+    text-decoration: none !important;
+    text-align: center !important;
+    padding: 0.65rem 1.1rem !important;
 }
 
 .stButton > button:hover,
 button[kind="primary"]:hover,
-button[kind="secondary"]:hover {
+button[kind="secondary"]:hover,
+div[data-testid="stLinkButton"] a:hover,
+a.admin-link-button:hover {
     background: var(--orange-dark) !important;
     color: #ffffff !important;
+    border: none !important;
 }
 
 .stButton > button p,
 button[kind="primary"] p,
-button[kind="secondary"] p {
+button[kind="secondary"] p,
+div[data-testid="stLinkButton"] a p,
+a.admin-link-button {
     color: #ffffff !important;
     font-weight: 800 !important;
 }
 
+/* Inputs e selects claros */
 div[data-baseweb="input"] > div,
 div[data-baseweb="select"] > div {
     background: #ffffff !important;
@@ -173,12 +154,81 @@ div[data-baseweb="select"] > div {
     border-radius: 14px !important;
 }
 
-div[data-baseweb="input"] input {
+div[data-baseweb="input"] input,
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div {
     color: #111111 !important;
 }
 
-[data-testid="stDataFrame"] {
+/* Expander claro */
+div[data-testid="stExpander"] {
+    background: #ffffff !important;
+    border: 1px solid #ebc98f !important;
+    border-radius: 14px !important;
+    margin-bottom: 10px !important;
+}
+
+div[data-testid="stExpander"] details summary {
+    background: #fffaf0 !important;
+    color: #111111 !important;
+    border-radius: 14px !important;
+    font-weight: 800 !important;
+}
+
+div[data-testid="stExpander"] details summary * {
+    color: #111111 !important;
+}
+
+/* Tabelas HTML claras */
+.admin-table-wrap {
+    overflow-x: auto;
     background: #ffffff;
+    border: 1px solid #ebc98f;
+    border-radius: 16px;
+    box-shadow: 0 6px 18px rgba(90, 60, 20, 0.04);
+    margin: 8px 0 22px 0;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92rem;
+    background: #ffffff;
+    color: #111111;
+}
+
+.admin-table th {
+    background: #fff1d6;
+    color: #111111 !important;
+    font-weight: 900;
+    text-align: left;
+    padding: 12px 14px;
+    border-bottom: 1px solid #ebc98f;
+    white-space: nowrap;
+}
+
+.admin-table td {
+    background: #ffffff;
+    color: #111111 !important;
+    padding: 11px 14px;
+    border-bottom: 1px solid #f1e1c4;
+    vertical-align: top;
+}
+
+.admin-table tr:nth-child(even) td {
+    background: #fffaf0;
+}
+
+.admin-table tr:last-child td {
+    border-bottom: none;
+}
+
+.table-empty {
+    background: #ffffff;
+    border: 1px solid #ebc98f;
+    border-radius: 14px;
+    padding: 14px;
+    color: #5f6673 !important;
 }
 
 hr {
@@ -232,6 +282,45 @@ def status_label(status):
         "recusado": "Recusado",
     }.get(status, status or "-")
 
+
+
+
+def safe_html(value):
+    if value is None:
+        return ""
+    return (
+        str(value)
+        .replace("&", "&amp;")
+        .replace("<", "&lt;")
+        .replace(">", "&gt;")
+        .replace('"', "&quot;")
+    )
+
+
+def render_table(dataframe, columns=None):
+    if dataframe is None or dataframe.empty:
+        st.markdown('<div class="table-empty">Nenhum registro encontrado.</div>', unsafe_allow_html=True)
+        return
+
+    base = dataframe.copy()
+    if columns:
+        base = base[[c for c in columns if c in base.columns]]
+
+    header = "".join(f"<th>{safe_html(col)}</th>" for col in base.columns)
+    rows = []
+    for _, row in base.iterrows():
+        cells = "".join(f"<td>{safe_html(row[col])}</td>" for col in base.columns)
+        rows.append(f"<tr>{cells}</tr>")
+
+    html_table = (
+        '<div class="admin-table-wrap">'
+        '<table class="admin-table">'
+        f'<thead><tr>{header}</tr></thead>'
+        f'<tbody>{"".join(rows)}</tbody>'
+        '</table>'
+        '</div>'
+    )
+    st.markdown(html_table, unsafe_allow_html=True)
 
 def buscar_participantes():
     response = (
@@ -349,16 +438,14 @@ def tabela_participantes(df, filtro_cota=None, filtro_status=None):
     colunas = ["nome", "Cota", "Valor", "Item", "Status", "email", "whatsapp", "Data"]
     colunas_existentes = [c for c in colunas if c in base.columns]
 
-    st.dataframe(
+    render_table(
         base[colunas_existentes].rename(
             columns={
                 "nome": "Participante",
                 "email": "E-mail",
                 "whatsapp": "WhatsApp",
             }
-        ),
-        use_container_width=True,
-        hide_index=True,
+        )
     )
 
 
@@ -410,7 +497,7 @@ if not st.session_state.admin_logado:
                 st.error("Senha incorreta.")
 
     with col_voltar:
-        st.link_button("Voltar para inscrição", "/", use_container_width=True)
+        st.markdown('<a class="admin-link-button" href="/" style="display:block;">Voltar para inscrição</a>', unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
     st.stop()
@@ -423,7 +510,7 @@ if not st.session_state.admin_logado:
 col_top1, col_top2, col_top3 = st.columns([1, 1, 1])
 
 with col_top1:
-    st.link_button("Voltar para inscrição", "/", use_container_width=True)
+    st.markdown('<a class="admin-link-button" href="/" style="display:block;">Voltar para inscrição</a>', unsafe_allow_html=True)
 
 with col_top2:
     if st.button("Atualizar dados", use_container_width=True):
@@ -519,16 +606,12 @@ itens_df = pd.DataFrame(itens_df_rows)
 if itens_df.empty:
     st.info("Nenhum item cadastrado em itens_levar.")
 else:
-    st.dataframe(itens_df, use_container_width=True, hide_index=True)
+    render_table(itens_df)
 
     faltantes = itens_df[itens_df["Faltam"] > 0].copy()
     if not faltantes.empty:
         st.markdown("#### Itens que ainda faltam")
-        st.dataframe(
-            faltantes[["Item", "Faltam"]],
-            use_container_width=True,
-            hide_index=True,
-        )
+        render_table(faltantes[["Item", "Faltam"]])
 
 
 # =========================
@@ -595,7 +678,7 @@ for participante in df.sort_values("criado_em", ascending=False).to_dict("record
             link_comprovante = gerar_link_comprovante(comprovante_path)
 
             if link_comprovante:
-                st.link_button("Abrir comprovante", link_comprovante, use_container_width=True)
+                st.markdown(f'<a class="admin-link-button" href="{link_comprovante}" target="_blank" style="display:block;">Abrir comprovante</a>', unsafe_allow_html=True)
             else:
                 st.caption("Sem comprovante anexado.")
 
