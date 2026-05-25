@@ -4,6 +4,7 @@ from pathlib import Path
 from uuid import uuid4
 import base64
 import json
+import re
 
 import streamlit as st
 from supabase import create_client
@@ -25,15 +26,15 @@ st.markdown(
     """
 <style>
 :root {
-    --azul: #12355b;
-    --azul-2: #17456f;
+    --azul: #111827;
+    --azul-2: #1f2937;
     --laranja: #df7f00;
     --laranja-2: #bf6900;
     --amarelo: #f8c94a;
     --fundo: #fff5e6;
     --creme: #fffaf0;
     --borda: #efd3a1;
-    --texto: #24364b;
+    --texto: #111827;
     --muted: #64748b;
 }
 
@@ -158,7 +159,7 @@ li[aria-selected="true"] {
 
 .banner-wrap {
     width: 100%;
-    max-width: 980px;
+    max-width: 1120px;
     margin: 0 auto;
     padding: 0;
 }
@@ -188,7 +189,7 @@ li[aria-selected="true"] {
 }
 
 .section-inner {
-    max-width: 980px;
+    max-width: 1120px;
     margin: 0 auto;
 }
 
@@ -496,6 +497,84 @@ button[data-testid="stBaseButton-secondary"],
     line-height: 1.6;
 }
 
+
+
+/* Ajustes finais de formulário e componentes */
+.form-compact {
+    max-width: 560px;
+    margin: 0 auto;
+}
+.form-compact .step-title {
+    text-align: center;
+}
+.form-compact .step-subtitle {
+    text-align: center;
+    margin-bottom: 14px;
+}
+
+div[data-baseweb="input"] > div,
+div[data-baseweb="textarea"] > div {
+    border: 0 !important;
+    box-shadow: 0 0 0 1px rgba(17,24,39,0.18) !important;
+}
+
+div[data-baseweb="input"] > div:focus-within,
+div[data-baseweb="textarea"] > div:focus-within {
+    box-shadow: 0 0 0 2px var(--laranja) !important;
+    border: 0 !important;
+}
+
+input:focus,
+textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+}
+
+input::selection,
+textarea::selection {
+    background: #ffe4b8 !important;
+    color: #111827 !important;
+}
+
+/* Number input: menos preto, mais laranja */
+button[aria-label="Decrement"],
+button[aria-label="Increment"] {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: 0 !important;
+}
+button[aria-label="Increment"] {
+    background: var(--laranja) !important;
+}
+
+/* Radio: bolinhas não selecionadas brancas */
+div[data-testid="stRadio"] [role="radio"] > div:first-child {
+    background: #ffffff !important;
+    border: 2px solid #111827 !important;
+}
+div[data-testid="stRadio"] [aria-checked="true"] > div:first-child {
+    background: #ff4b4b !important;
+    border: 2px solid #ff4b4b !important;
+}
+
+.success-card {
+    background: #ffffff !important;
+    border: 1px solid var(--borda) !important;
+}
+
+.upload-note {
+    font-size: 0.95rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.stButton > button p,
+button[kind="secondary"] p,
+button[kind="primary"] p {
+    white-space: nowrap !important;
+}
+
 @media (max-width: 800px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -558,6 +637,59 @@ def html(content: str):
 
 def money(value: float) -> str:
     return f"R$ {value:.2f}".replace(".", ",")
+
+
+def normalizar_whatsapp(valor: str) -> str:
+    return re.sub(r"\D", "", valor or "")
+
+
+def formatar_whatsapp(valor: str) -> str:
+    digitos = normalizar_whatsapp(valor)
+    if len(digitos) == 11:
+        return f"({digitos[:2]}) {digitos[2:7]}-{digitos[7:]}"
+    if len(digitos) == 10:
+        return f"({digitos[:2]}) {digitos[2:6]}-{digitos[6:]}"
+    return valor.strip()
+
+
+def email_valido(valor: str) -> bool:
+    return bool(re.match(r"^[^\s@]+@[^\s@]+\.[^\s@]+$", (valor or "").strip()))
+
+
+def whatsapp_valido(valor: str) -> bool:
+    return len(normalizar_whatsapp(valor)) in (10, 11)
+
+
+def email_ou_whatsapp_ja_cadastrado(email: str, whatsapp: str) -> tuple[bool, str]:
+    email_normalizado = email.strip().lower()
+    whatsapp_formatado = formatar_whatsapp(whatsapp)
+    whatsapp_digits = normalizar_whatsapp(whatsapp)
+
+    por_email = (
+        supabase.table("participantes")
+        .select("id")
+        .eq("email", email_normalizado)
+        .limit(1)
+        .execute()
+        .data
+    )
+    if por_email:
+        return True, "Este e-mail já foi usado em uma inscrição."
+
+    candidatos = [whatsapp_formatado, whatsapp.strip(), whatsapp_digits]
+    for telefone in set(filter(None, candidatos)):
+        por_whatsapp = (
+            supabase.table("participantes")
+            .select("id")
+            .eq("whatsapp", telefone)
+            .limit(1)
+            .execute()
+            .data
+        )
+        if por_whatsapp:
+            return True, "Este WhatsApp já foi usado em uma inscrição."
+
+    return False, ""
 
 
 def render_banner():
@@ -673,7 +805,7 @@ def cadastrar_participantes_familia(
         registros.append({
             "nome": adulto,
             "email": email.strip().lower(),
-            "whatsapp": whatsapp.strip(),
+            "whatsapp": formatar_whatsapp(whatsapp),
             "tipo_cota": tipo_cota,
             "valor_cota": valor_cota,
             "item_levar": item,
@@ -756,7 +888,7 @@ if st.session_state.inscricao_concluida:
     ''')
     btn_s1, btn_s2, btn_s3 = st.columns([1, 1.1, 1])
     with btn_s2:
-        if st.button("Fazer nova inscrição", use_container_width=True):
+        if st.button("Voltar", use_container_width=True):
             st.session_state.inscricao_concluida = False
             st.session_state.familia_confirmada = False
             st.session_state.adultos_nomes = []
@@ -856,24 +988,23 @@ html("""
 html('''
 <section class="section section-cream" id="inscricao">
     <div class="section-inner">
-        <div class="form-heading">
+        <div class="form-compact">
             <div class="step-title">Inscreva sua família</div>
             <div class="step-subtitle">
-                Preencha os dados do responsável e informe quem vai participar.
-                Crianças até 10 anos não pagam.
+                Preencha os dados do responsável e informe quem vai participar. Crianças até 10 anos não pagam.
             </div>
         </div>
     </div>
 </section>
 ''')
 
-form_col_left, form_col, form_col_right = st.columns([1.7, 1.2, 1.7])
+form_col_left, form_col, form_col_right = st.columns([1.9, 1.0, 1.9])
 
 with form_col:
     responsavel_nome = st.text_input("Nome completo do responsável", key="responsavel_nome")
 
-    email = st.text_input("E-mail", key="email")
-    whatsapp = st.text_input("WhatsApp", key="whatsapp")
+    email = st.text_input("E-mail", key="email", placeholder="seu@email.com")
+    whatsapp = st.text_input("WhatsApp", key="whatsapp", placeholder="(12) 98888-7777")
 
     col3, col4 = st.columns(2)
     with col3:
@@ -895,7 +1026,7 @@ with form_col:
 
     btn_left, btn_mid, btn_right = st.columns([1, 1.25, 1])
     with btn_mid:
-        confirmar_participantes = st.button("Confirmar participantes", use_container_width=True)
+        confirmar_participantes = st.button("Confirmar", use_container_width=True)
 
     if confirmar_participantes:
         adultos_ok = all(nome.strip() for nome in adultos_nomes)
@@ -903,15 +1034,23 @@ with form_col:
 
         if not responsavel_nome or not email or not whatsapp:
             st.error("Preencha nome, e-mail e WhatsApp do responsável.")
+        elif not email_valido(email):
+            st.error("Informe um e-mail válido, com @ e domínio. Exemplo: nome@email.com")
+        elif not whatsapp_valido(whatsapp):
+            st.error("Informe um WhatsApp válido com DDD. Exemplo: (12) 98888-7777")
         elif not adultos_ok:
             st.error("Preencha o nome do responsável e de todos os adultos adicionais.")
         elif not criancas_ok:
             st.error("Preencha o nome de todas as crianças informadas.")
         else:
-            st.session_state.familia_confirmada = True
-            st.session_state.adultos_nomes = [nome.strip() for nome in adultos_nomes]
-            st.session_state.criancas_nomes = [nome.strip() for nome in criancas_nomes]
-            st.rerun()
+            duplicado, mensagem_duplicidade = email_ou_whatsapp_ja_cadastrado(email, whatsapp)
+            if duplicado:
+                st.error(mensagem_duplicidade)
+            else:
+                st.session_state.familia_confirmada = True
+                st.session_state.adultos_nomes = [nome.strip() for nome in adultos_nomes]
+                st.session_state.criancas_nomes = [nome.strip() for nome in criancas_nomes]
+                st.rerun()
 
     if st.session_state.familia_confirmada:
         adultos = st.session_state.adultos_nomes
@@ -997,20 +1136,20 @@ with form_col:
                 <strong>Copie o código Pix abaixo:</strong><br>
                 <div class="pix-key">{config["chave_pix"]}</div>
             </div>
-            <div class="payment-box">
-                <h3>Anexo do Comprovante</h3>
             ''',
             unsafe_allow_html=True,
         )
 
-        comprovante = st.file_uploader(
-            "Anexe o comprovante do Pix",
-            type=["png", "jpg", "jpeg", "pdf"],
-        )
+        with st.container(border=True):
+            st.markdown("### Anexo do Comprovante")
+            st.markdown('<div class="upload-note">Máximo de 200KB • PNG, JPG, PDF</div>', unsafe_allow_html=True)
+            comprovante = st.file_uploader(
+                "Comprovante do Pix",
+                type=["png", "jpg", "jpeg", "pdf"],
+                label_visibility="collapsed",
+            )
 
-        st.markdown("</div>", unsafe_allow_html=True)
-
-        btn_left, btn_mid, btn_right = st.columns([1, 1.25, 1])
+        btn_left, btn_mid, btn_right = st.columns([1.25, 1, 1.25])
         with btn_mid:
             confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
 
@@ -1019,6 +1158,8 @@ with form_col:
                 st.error("Escolha o item de todos os adultos que selecionaram cota R$25 ou R$5.")
             elif not comprovante:
                 st.error("Anexe o comprovante do Pix.")
+            elif comprovante.size > 200 * 1024:
+                st.error("O comprovante deve ter no máximo 200KB. Comprima a imagem ou envie um arquivo menor.")
             else:
                 try:
                     comprovante_url = salvar_comprovante(comprovante, email)
