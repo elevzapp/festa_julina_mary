@@ -820,21 +820,11 @@ st.markdown(
     '🧺 <strong>Cota R$25:</strong> você participa e também escolhe um item para levar.<br><br>'
     'A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.'
     '</div>'
-    '<div class="notice">'
-    'Garanta sua inscrição. As vagas são limitadas!'
-    '</div>'
     '</div>',
     unsafe_allow_html=True
 )
 
-
 if not st.session_state.mostrar_inscricao:
-    html("""
-    <div class="ready-card">
-        <div class="section-title">Pronto para participar?</div>
-    </div>
-    """)
-
     col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 1])
     with col_btn2:
         if st.button("Quero me inscrever", use_container_width=True):
