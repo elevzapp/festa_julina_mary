@@ -158,6 +158,19 @@ textarea {
     align-items: center;
 }
 
+.hero-single {
+    max-width: 900px;
+    text-align: left;
+}
+
+.hero-single .hero-title {
+    max-width: 820px;
+}
+
+.hero-single .hero-text {
+    max-width: 760px;
+}
+
 .hero-title {
     font-size: clamp(2.6rem, 7vw, 5.5rem);
     line-height: 0.98;
@@ -307,6 +320,16 @@ textarea {
     box-shadow: 0 12px 30px rgba(90, 60, 20, 0.08);
 }
 
+.form-intro {
+    max-width: 760px;
+    margin: 0 auto 30px auto;
+    background: #ffffff;
+    border: 1px solid var(--borda);
+    border-radius: 28px;
+    padding: 30px;
+    box-shadow: 0 12px 30px rgba(90, 60, 20, 0.08);
+}
+
 .step-title {
     font-size: clamp(1.8rem, 4vw, 2.4rem);
     font-weight: 950;
@@ -400,9 +423,14 @@ textarea {
         grid-template-columns: 1fr;
     }
 
-    .form-shell {
+    .form-shell,
+    .form-intro {
         border-radius: 24px;
         padding: 22px 16px;
+    }
+
+    .hero-single {
+        text-align: left;
     }
 }
 </style>
@@ -619,27 +647,14 @@ render_banner()
 
 html("""
 <section class="section section-white" id="inicio">
-    <div class="section-inner hero-grid">
-        <div>
-            <div class="hero-title">A Festa Julina da Mary está chegando.</div>
-            <div class="hero-text">
-                Uma noite gostosa, divertida e bem organizada para reunir todo mundo.
-                Quem participar já terá acesso às comidas principais, às brincadeiras,
-                à estrutura preparada e a uma programação cheia de clima julino.
-            </div>
-            <a class="cta-link" href="#inscricao">Quero me inscrever</a>
+    <div class="section-inner hero-single">
+        <div class="hero-title">A Festa Julina da Mary está chegando.</div>
+        <div class="hero-text">
+            Uma noite gostosa, divertida e bem organizada para reunir todo mundo.
+            Quem participar já terá acesso às comidas principais, às brincadeiras,
+            à estrutura preparada e a uma programação cheia de clima julino.
         </div>
-        <div class="info-card">
-            <h2>Como funciona?</h2>
-            <div class="info-line">
-                Para facilitar a organização da festa, este ano a inscrição será feita antecipadamente.
-                Assim conseguimos controlar melhor as comidas, bebidas, estrutura e os itens que cada pessoa vai levar.
-            </div>
-            <div class="info-line">🎟️ <strong>Cota R$50:</strong> esta cota é para quem não tem tempo. Com ela você não precisa levar nenhum prato.</div>
-            <div class="info-line">🧺 <strong>Cota R$25:</strong> com esta cota, você ajuda na organização e leva um prato dentre as opções.</div>
-            <div class="info-line">🤝 <strong>Cota R$5:</strong> cota solidária para quem está apertado. Você ajuda de forma simbólica e leva um prato dentre as opções.</div>
-            <div class="info-line">A confirmação do pagamento será feita manualmente pela organização após a conferência do comprovante.</div>
-        </div>
+        <a class="cta-link" href="#inscricao">Quero me inscrever</a>
     </div>
 </section>
 """)
@@ -713,154 +728,168 @@ html("""
 # FORMULÁRIO
 # =========================
 
-html('<section class="section section-cream" id="inscricao"><div class="section-inner"><div class="form-shell">')
-st.markdown('<div class="step-title">Inscreva sua família</div>', unsafe_allow_html=True)
-st.markdown(
-    '<div class="step-subtitle">Primeiro preencha os dados do responsável e informe quem vai participar. Crianças até 10 anos não pagam.</div>',
-    unsafe_allow_html=True,
-)
+html('''
+<section class="section section-cream" id="inscricao">
+    <div class="section-inner">
+        <div class="form-intro">
+            <div class="step-title">Inscreva sua família</div>
+            <div class="step-subtitle">
+                Primeiro preencha os dados do responsável e informe quem vai participar.
+                Crianças até 10 anos não pagam.
+            </div>
+        </div>
+    </div>
+</section>
+''')
 
-responsavel_nome = st.text_input("Nome completo do responsável", key="responsavel_nome")
+form_col_left, form_col, form_col_right = st.columns([1, 2.2, 1])
 
-col1, col2 = st.columns(2)
-with col1:
+with form_col:
+    responsavel_nome = st.text_input("Nome completo do responsável", key="responsavel_nome")
+
     email = st.text_input("E-mail", key="email")
-with col2:
     whatsapp = st.text_input("WhatsApp", key="whatsapp")
 
-col3, col4 = st.columns(2)
-with col3:
-    qtd_adultos = st.number_input("Adultos pagantes", min_value=1, max_value=12, value=1, step=1)
-with col4:
-    qtd_criancas = st.number_input("Crianças até 10 anos", min_value=0, max_value=12, value=0, step=1)
+    col3, col4 = st.columns(2)
+    with col3:
+        qtd_adultos = st.number_input("Adultos pagantes", min_value=1, max_value=12, value=1, step=1)
+    with col4:
+        qtd_criancas = st.number_input("Crianças até 10 anos", min_value=0, max_value=12, value=0, step=1)
 
-st.markdown("#### Nomes dos adultos")
-adultos_nomes = []
-for i in range(int(qtd_adultos)):
-    default = responsavel_nome if i == 0 else ""
-    adultos_nomes.append(st.text_input(f"Adulto {i + 1}", value=default, key=f"adulto_nome_{i}"))
+    st.markdown("#### Nomes dos adultos")
+    adultos_nomes = []
+    for i in range(int(qtd_adultos)):
+        default = responsavel_nome if i == 0 else ""
+        adultos_nomes.append(st.text_input(f"Adulto {i + 1}", value=default, key=f"adulto_nome_{i}"))
 
-criancas_nomes = []
-if int(qtd_criancas) > 0:
-    st.markdown("#### Nomes das crianças")
-    for i in range(int(qtd_criancas)):
-        criancas_nomes.append(st.text_input(f"Criança {i + 1}", key=f"crianca_nome_{i}"))
+    criancas_nomes = []
+    if int(qtd_criancas) > 0:
+        st.markdown("#### Nomes das crianças")
+        for i in range(int(qtd_criancas)):
+            criancas_nomes.append(st.text_input(f"Criança {i + 1}", key=f"crianca_nome_{i}"))
 
-if st.button("Confirmar participantes", use_container_width=True):
-    adultos_ok = all(nome.strip() for nome in adultos_nomes)
-    criancas_ok = all(nome.strip() for nome in criancas_nomes)
+    btn_left, btn_mid, btn_right = st.columns([1, 1.25, 1])
+    with btn_mid:
+        confirmar_participantes = st.button("Confirmar participantes", use_container_width=True)
 
-    if not responsavel_nome or not email or not whatsapp:
-        st.error("Preencha nome, e-mail e WhatsApp do responsável.")
-    elif not adultos_ok:
-        st.error("Preencha o nome de todos os adultos pagantes.")
-    elif not criancas_ok:
-        st.error("Preencha o nome de todas as crianças informadas.")
-    else:
-        st.session_state.familia_confirmada = True
-        st.session_state.adultos_nomes = [nome.strip() for nome in adultos_nomes]
-        st.session_state.criancas_nomes = [nome.strip() for nome in criancas_nomes]
-        st.rerun()
+    if confirmar_participantes:
+        adultos_ok = all(nome.strip() for nome in adultos_nomes)
+        criancas_ok = all(nome.strip() for nome in criancas_nomes)
 
-if st.session_state.familia_confirmada:
-    adultos = st.session_state.adultos_nomes
-    criancas = st.session_state.criancas_nomes
+        if not responsavel_nome or not email or not whatsapp:
+            st.error("Preencha nome, e-mail e WhatsApp do responsável.")
+        elif not adultos_ok:
+            st.error("Preencha o nome de todos os adultos pagantes.")
+        elif not criancas_ok:
+            st.error("Preencha o nome de todas as crianças informadas.")
+        else:
+            st.session_state.familia_confirmada = True
+            st.session_state.adultos_nomes = [nome.strip() for nome in adultos_nomes]
+            st.session_state.criancas_nomes = [nome.strip() for nome in criancas_nomes]
+            st.rerun()
 
-    st.divider()
-    st.markdown('<div class="step-title">Escolha as cotas dos adultos</div>', unsafe_allow_html=True)
-    st.markdown(
-        '<div class="step-subtitle">Cada adulto deve escolher uma cota. Quem escolher R$25 ou R$5 também escolhe um item para levar.</div>',
-        unsafe_allow_html=True,
-    )
+    if st.session_state.familia_confirmada:
+        adultos = st.session_state.adultos_nomes
+        criancas = st.session_state.criancas_nomes
 
-    st.markdown(
-        f"""
-        <div class="payment-box">
-            <strong>Cotas disponíveis:</strong><br>
-            🎟️ R$50: {vagas_50} vaga(s) &nbsp; | &nbsp;
-            🧺 R$25: {vagas_25} vaga(s) &nbsp; | &nbsp;
-            🤝 R$5: {vagas_5} vaga(s) simbólica(s)
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    cotas_por_adulto = []
-    itens_por_adulto = []
-    valor_total = 0.0
-    formulario_cotas_ok = True
-
-    item_options = [""] + [item["nome"] for item in itens_disponiveis]
-
-    for idx, adulto in enumerate(adultos):
-        st.markdown(f'<div class="person-card"><div class="person-title">{adulto}</div>', unsafe_allow_html=True)
-
-        cota_label = st.radio(
-            "Escolha a cota",
-            ["🎟️ Cota R$50", "🧺 Cota R$25", "🤝 Cota R$5"],
-            horizontal=True,
-            key=f"cota_adulto_{idx}",
+        st.divider()
+        st.markdown('<div class="step-title">Escolha as cotas dos adultos</div>', unsafe_allow_html=True)
+        st.markdown(
+            '<div class="step-subtitle">Cada adulto deve escolher uma cota. Quem escolher R$25 ou R$5 também escolhe um item para levar.</div>',
+            unsafe_allow_html=True,
         )
 
-        if "R$50" in cota_label:
-            tipo = "completa_50"
-            valor_total += 50.0
-            item = None
-        elif "R$25" in cota_label:
-            tipo = "reduzida_25"
-            valor_total += 25.0
-            item = st.selectbox("Item que vai levar", item_options, key=f"item_adulto_{idx}")
-            if not item:
-                formulario_cotas_ok = False
-        else:
-            tipo = "minima_5"
-            valor_total += 5.0
-            item = st.selectbox("Item que vai levar", item_options, key=f"item_adulto_{idx}")
-            if not item:
-                formulario_cotas_ok = False
+        st.markdown(
+            f'''
+            <div class="payment-box">
+                <strong>Cotas disponíveis:</strong><br>
+                🎟️ R$50: {vagas_50} vaga(s) &nbsp; | &nbsp;
+                🧺 R$25: {vagas_25} vaga(s) &nbsp; | &nbsp;
+                🤝 R$5: {vagas_5} vaga(s) simbólica(s)
+            </div>
+            ''',
+            unsafe_allow_html=True,
+        )
 
-        cotas_por_adulto.append(tipo)
-        itens_por_adulto.append(item)
+        cotas_por_adulto = []
+        itens_por_adulto = []
+        valor_total = 0.0
+        formulario_cotas_ok = True
+
+        item_options = [""] + [item["nome"] for item in itens_disponiveis]
+
+        for idx, adulto in enumerate(adultos):
+            st.markdown(f'<div class="person-card"><div class="person-title">{adulto}</div>', unsafe_allow_html=True)
+
+            cota_label = st.radio(
+                "Escolha a cota",
+                ["🎟️ Cota R$50", "🧺 Cota R$25", "🤝 Cota R$5"],
+                horizontal=True,
+                key=f"cota_adulto_{idx}",
+            )
+
+            if "R$50" in cota_label:
+                tipo = "completa_50"
+                valor_total += 50.0
+                item = None
+            elif "R$25" in cota_label:
+                tipo = "reduzida_25"
+                valor_total += 25.0
+                item = st.selectbox("Item que vai levar", item_options, key=f"item_adulto_{idx}")
+                if not item:
+                    formulario_cotas_ok = False
+            else:
+                tipo = "minima_5"
+                valor_total += 5.0
+                item = st.selectbox("Item que vai levar", item_options, key=f"item_adulto_{idx}")
+                if not item:
+                    formulario_cotas_ok = False
+
+            cotas_por_adulto.append(tipo)
+            itens_por_adulto.append(item)
+
+            st.markdown("</div>", unsafe_allow_html=True)
+
+        resumo_itens = "".join(
+            f"<li>{adultos[i]}: {itens_por_adulto[i] or 'não precisa levar item'}</li>"
+            for i in range(len(adultos))
+        )
+
+        st.markdown(
+            f'''
+            <div class="payment-box">
+                <h3>Resumo da inscrição</h3>
+                <strong>Responsável:</strong> {responsavel_nome}<br>
+                <strong>Adultos pagantes:</strong> {len(adultos)}<br>
+                <strong>Crianças até 10 anos:</strong> {len(criancas)}<br>
+                <strong>Total do Pix:</strong> {money(valor_total)}<br>
+                <br>
+                <strong>Itens:</strong>
+                <ul>{resumo_itens}</ul>
+            </div>
+            <div class="payment-box">
+                <h3>Dados do Recebedor</h3>
+                <strong>Copie o código Pix abaixo:</strong><br>
+                <div class="pix-key">{config["chave_pix"]}</div>
+            </div>
+            <div class="payment-box">
+                <h3>Anexo do Comprovante</h3>
+            ''',
+            unsafe_allow_html=True,
+        )
+
+        comprovante = st.file_uploader(
+            "Anexe o comprovante do Pix",
+            type=["png", "jpg", "jpeg", "pdf"],
+        )
 
         st.markdown("</div>", unsafe_allow_html=True)
 
-    resumo_itens = "".join(
-        f"<li>{adultos[i]}: {itens_por_adulto[i] or 'não precisa levar item'}</li>"
-        for i in range(len(adultos))
-    )
+        btn_left, btn_mid, btn_right = st.columns([1, 1.25, 1])
+        with btn_mid:
+            confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
 
-    st.markdown(
-        f"""
-        <div class="payment-box">
-            <h3>Resumo da inscrição</h3>
-            <strong>Responsável:</strong> {responsavel_nome}<br>
-            <strong>Adultos pagantes:</strong> {len(adultos)}<br>
-            <strong>Crianças até 10 anos:</strong> {len(criancas)}<br>
-            <strong>Total do Pix:</strong> {money(valor_total)}<br>
-            <br>
-            <strong>Itens:</strong>
-            <ul>{resumo_itens}</ul>
-        </div>
-        <div class="payment-box">
-            <h3>Dados do Recebedor</h3>
-            <strong>Copie o código Pix abaixo:</strong><br>
-            <div class="pix-key">{config["chave_pix"]}</div>
-        </div>
-        <div class="payment-box">
-            <h3>Anexo do Comprovante</h3>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    comprovante = st.file_uploader(
-        "Anexe o comprovante do Pix",
-        type=["png", "jpg", "jpeg", "pdf"],
-    )
-
-    col_confirm_1, col_confirm_2, col_confirm_3 = st.columns([1, 1, 1])
-    with col_confirm_2:
-        if st.button("Confirmar inscrição", use_container_width=True):
+        if confirmar_inscricao:
             if not formulario_cotas_ok:
                 st.error("Escolha o item de todos os adultos que selecionaram cota R$25 ou R$5.")
             elif not comprovante:
@@ -892,8 +921,6 @@ if st.session_state.familia_confirmada:
                 except Exception as erro:
                     st.error("Não foi possível salvar sua inscrição.")
                     st.exception(erro)
-
-html("</div></div></section>")
 
 
 # =========================
