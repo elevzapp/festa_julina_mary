@@ -26,8 +26,8 @@ st.markdown(
     """
 <style>
 :root {
-    --azul: #111827;
-    --azul-2: #1f2937;
+    --azul: #111111;
+    --azul-2: #222222;
     --laranja: #df7f00;
     --laranja-2: #bf6900;
     --amarelo: #f8c94a;
@@ -575,6 +575,132 @@ button[kind="primary"] p {
     white-space: nowrap !important;
 }
 
+
+
+/* Correções finais de formulário */
+div[data-baseweb="input"] > div,
+div[data-baseweb="textarea"] > div {
+    border: 0 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+}
+
+div[data-baseweb="input"] > div:focus-within,
+div[data-baseweb="textarea"] > div:focus-within {
+    border: 0 !important;
+    box-shadow: 0 0 0 1px #df7f00 !important;
+    background: #ffffff !important;
+}
+
+div[data-baseweb="input"] input,
+textarea,
+input {
+    color: #111111 !important;
+    background: #ffffff !important;
+    caret-color: #df7f00 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-text-fill-color: #111111 !important;
+}
+
+input::selection,
+textarea::selection {
+    background: #ffe4b8 !important;
+    color: #111111 !important;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+    -webkit-text-fill-color: #111111 !important;
+    transition: background-color 9999s ease-in-out 0s !important;
+}
+
+/* Number input: preto e laranja, sem vermelho */
+button[data-testid="stNumberInputStepDown"],
+button[aria-label="Decrement"],
+button[title="Decrease value"] {
+    background: #111111 !important;
+    color: #ffffff !important;
+    border: 0 !important;
+}
+button[data-testid="stNumberInputStepUp"],
+button[aria-label="Increment"],
+button[title="Increase value"] {
+    background: #df7f00 !important;
+    color: #ffffff !important;
+    border: 0 !important;
+}
+button[data-testid="stNumberInputStepDown"] *,
+button[data-testid="stNumberInputStepUp"] *,
+button[aria-label="Decrement"] *,
+button[aria-label="Increment"] * {
+    color: #ffffff !important;
+}
+
+/* Radio: branco quando não selecionado, laranja quando selecionado */
+div[data-testid="stRadio"] [role="radio"] > div:first-child {
+    background: #ffffff !important;
+    border: 2px solid #111111 !important;
+    box-shadow: none !important;
+}
+div[data-testid="stRadio"] [role="radio"][aria-checked="true"] > div:first-child,
+div[data-testid="stRadio"] [aria-checked="true"] > div:first-child {
+    background: #df7f00 !important;
+    border: 2px solid #df7f00 !important;
+    box-shadow: inset 0 0 0 3px #ffffff !important;
+}
+div[data-testid="stRadio"] svg {
+    color: #df7f00 !important;
+    fill: #df7f00 !important;
+}
+
+/* Upload: esconder texto interno padrão do Streamlit */
+[data-testid="stFileUploaderDropzoneInstructions"],
+section[data-testid="stFileUploaderDropzone"] small,
+section[data-testid="stFileUploaderDropzone"] [data-testid="stMarkdownContainer"]:has(small) {
+    display: none !important;
+}
+section[data-testid="stFileUploaderDropzone"] {
+    background: #ffffff !important;
+    border: 2px dashed #d8b981 !important;
+    border-radius: 18px !important;
+    padding: 14px !important;
+}
+
+.upload-card {
+    background: #ffffff;
+    border: 2px dashed #d8b981;
+    border-radius: 22px;
+    padding: 22px;
+    margin: 18px 0;
+}
+.upload-title {
+    color: #111111;
+    font-size: 1.35rem;
+    font-weight: 900;
+    margin-bottom: 8px;
+}
+
+.payment-box h3,
+.payment-box strong,
+.person-title,
+.step-title,
+.section-title,
+.included-text,
+.how-title {
+    color: #111111 !important;
+}
+
+.btn-center-narrow {
+    max-width: 260px;
+    margin: 18px auto 0 auto;
+}
+
 @media (max-width: 800px) {
     .hero-grid {
         grid-template-columns: 1fr;
@@ -650,6 +776,13 @@ def formatar_whatsapp(valor: str) -> str:
     if len(digitos) == 10:
         return f"({digitos[:2]}) {digitos[2:6]}-{digitos[6:]}"
     return valor.strip()
+
+
+def formatar_whatsapp_state():
+    valor = st.session_state.get("whatsapp", "")
+    formatado = formatar_whatsapp(valor)
+    if formatado != valor:
+        st.session_state["whatsapp"] = formatado
 
 
 def email_valido(valor: str) -> bool:
@@ -1004,7 +1137,8 @@ with form_col:
     responsavel_nome = st.text_input("Nome completo do responsável", key="responsavel_nome")
 
     email = st.text_input("E-mail", key="email", placeholder="seu@email.com")
-    whatsapp = st.text_input("WhatsApp", key="whatsapp", placeholder="(12) 98888-7777")
+    whatsapp = st.text_input("WhatsApp", key="whatsapp", placeholder="(12) 98888-7777", on_change=formatar_whatsapp_state)
+    whatsapp = formatar_whatsapp(whatsapp)
 
     col3, col4 = st.columns(2)
     with col3:
@@ -1140,16 +1274,21 @@ with form_col:
             unsafe_allow_html=True,
         )
 
-        with st.container(border=True):
-            st.markdown("### Anexo do Comprovante")
-            st.markdown('<div class="upload-note">Máximo de 200KB • PNG, JPG, PDF</div>', unsafe_allow_html=True)
-            comprovante = st.file_uploader(
-                "Comprovante do Pix",
-                type=["png", "jpg", "jpeg", "pdf"],
-                label_visibility="collapsed",
-            )
+        st.markdown(
+            '<div class="upload-card">'
+            '<div class="upload-title">Anexo do Comprovante</div>'
+            '<div class="upload-note">Máximo de 200KB • PNG, JPG, PDF</div>'
+            '</div>',
+            unsafe_allow_html=True,
+        )
 
-        btn_left, btn_mid, btn_right = st.columns([1.25, 1, 1.25])
+        comprovante = st.file_uploader(
+            "Comprovante do Pix",
+            type=["png", "jpg", "jpeg", "pdf"],
+            label_visibility="collapsed",
+        )
+
+        btn_left, btn_mid, btn_right = st.columns([1.55, 1.05, 1.55])
         with btn_mid:
             confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
 
