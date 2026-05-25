@@ -735,6 +735,100 @@ section[data-testid="stFileUploaderDropzone"] {
         text-align: left;
     }
 }
+
+
+/* Ajustes v12: menos briga com componentes nativos */
+.form-compact { max-width: 720px; margin: 0 auto; }
+.form-compact .step-title, .step-title { font-size: 2.15rem !important; }
+.form-compact .step-subtitle, .step-subtitle { font-size: 1.05rem !important; }
+
+div[data-baseweb="input"] > div,
+div[data-baseweb="select"] > div,
+div[data-baseweb="textarea"] > div {
+    border: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+div[data-baseweb="input"] > div:focus-within,
+div[data-baseweb="select"] > div:focus-within,
+div[data-baseweb="textarea"] > div:focus-within {
+    border: 0 !important;
+    box-shadow: 0 0 0 2px rgba(223, 127, 0, 0.28) !important;
+    outline: none !important;
+}
+
+input:focus, textarea:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Selectbox claro: substitui radios e evita bolinhas azul/vermelho */
+div[data-baseweb="select"] > div {
+    background: #ffffff !important;
+    color: #111111 !important;
+    border-radius: 14px !important;
+    min-height: 48px !important;
+}
+
+div[data-baseweb="select"] span,
+div[data-baseweb="select"] div {
+    color: #111111 !important;
+}
+
+div[data-baseweb="select"] svg {
+    color: var(--laranja) !important;
+    fill: var(--laranja) !important;
+}
+
+div[data-baseweb="popover"],
+div[data-baseweb="popover"] * {
+    background: #ffffff !important;
+    color: #111111 !important;
+}
+
+/* Esconde texto padrão do uploader quando possível */
+section[data-testid="stFileUploaderDropzone"] small,
+section[data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"],
+section[data-testid="stFileUploaderDropzone"] [data-testid="stFileUploaderDropzoneInstructions"] * {
+    display: none !important;
+}
+
+/* Quadrante nativo para anexo */
+div[data-testid="stVerticalBlockBorderWrapper"] {
+    border: 1px dashed #d8b981 !important;
+    border-radius: 18px !important;
+    background: #ffffff !important;
+    padding: 1.2rem !important;
+}
+
+/* Botões sem quebra de texto */
+.stButton > button,
+button[kind="secondary"],
+button[kind="primary"] {
+    white-space: nowrap !important;
+    min-width: 180px !important;
+}
+
+.stButton > button p,
+button[kind="secondary"] p,
+button[kind="primary"] p {
+    white-space: nowrap !important;
+}
+
+/* Upload dentro do bloco */
+.upload-inline-title {
+    font-size: 1.35rem;
+    font-weight: 850;
+    color: #111111;
+    margin-bottom: 0.35rem;
+}
+.upload-inline-note {
+    color: #64748b;
+    font-size: 0.95rem;
+    margin-bottom: 0.9rem;
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1142,9 +1236,19 @@ with form_col:
 
     col3, col4 = st.columns(2)
     with col3:
-        qtd_outros_adultos = st.number_input("Outros adultos pagantes além de você", min_value=0, max_value=12, value=0, step=1)
+        qtd_outros_adultos = st.selectbox(
+            "Outros adultos pagantes além de você",
+            options=list(range(13)),
+            index=0,
+            key="qtd_outros_adultos",
+        )
     with col4:
-        qtd_criancas = st.number_input("Crianças até 10 anos", min_value=0, max_value=12, value=0, step=1)
+        qtd_criancas = st.selectbox(
+            "Crianças até 10 anos",
+            options=list(range(13)),
+            index=0,
+            key="qtd_criancas",
+        )
 
     adultos_nomes = [responsavel_nome.strip()] if responsavel_nome.strip() else [""]
     if int(qtd_outros_adultos) > 0:
@@ -1214,15 +1318,21 @@ with form_col:
         valor_total = 0.0
         formulario_cotas_ok = True
 
-        item_options = [""] + [item["nome"] for item in itens_disponiveis]
+        item_placeholder = "Selecione o item"
+        item_options = [item_placeholder] + [item["nome"] for item in itens_disponiveis]
+
+        cota_options = [
+            "🎟️ Cota R$50 - não preciso levar prato",
+            "🧺 Cota R$25 - vou levar um item",
+            "🤝 Cota R$5 - solidária + vou levar um item",
+        ]
 
         for idx, adulto in enumerate(adultos):
             st.markdown(f'<div class="person-card"><div class="person-title">{adulto}</div>', unsafe_allow_html=True)
 
-            cota_label = st.radio(
-                "Escolha a cota",
-                ["🎟️ Cota R$50", "🧺 Cota R$25", "🤝 Cota R$5"],
-                horizontal=True,
+            cota_label = st.selectbox(
+                f"Escolha a cota de {adulto}",
+                cota_options,
                 key=f"cota_adulto_{idx}",
             )
 
@@ -1233,15 +1343,25 @@ with form_col:
             elif "R$25" in cota_label:
                 tipo = "reduzida_25"
                 valor_total += 25.0
-                item = st.selectbox("Item que vai levar", item_options, key=f"item_adulto_{idx}")
-                if not item:
+                item = st.selectbox(
+                    f"Item que {adulto} vai levar",
+                    item_options,
+                    key=f"item_adulto_{idx}",
+                )
+                if item == item_placeholder:
                     formulario_cotas_ok = False
+                    item = None
             else:
                 tipo = "minima_5"
                 valor_total += 5.0
-                item = st.selectbox("Item que vai levar", item_options, key=f"item_adulto_{idx}")
-                if not item:
+                item = st.selectbox(
+                    f"Item que {adulto} vai levar",
+                    item_options,
+                    key=f"item_adulto_{idx}",
+                )
+                if item == item_placeholder:
                     formulario_cotas_ok = False
+                    item = None
 
             cotas_por_adulto.append(tipo)
             itens_por_adulto.append(item)
@@ -1274,23 +1394,18 @@ with form_col:
             unsafe_allow_html=True,
         )
 
-        st.markdown(
-            '<div class="upload-card">'
-            '<div class="upload-title">Anexo do Comprovante</div>'
-            '<div class="upload-note">Máximo de 200KB • PNG, JPG, PDF</div>'
-            '</div>',
-            unsafe_allow_html=True,
-        )
+        with st.container(border=True):
+            st.markdown('<div class="upload-inline-title">Anexo do Comprovante</div>', unsafe_allow_html=True)
+            st.markdown('<div class="upload-inline-note">Máximo de 200KB • PNG, JPG, PDF</div>', unsafe_allow_html=True)
+            comprovante = st.file_uploader(
+                "Comprovante do Pix",
+                type=["png", "jpg", "jpeg", "pdf"],
+                label_visibility="collapsed",
+            )
 
-        comprovante = st.file_uploader(
-            "Comprovante do Pix",
-            type=["png", "jpg", "jpeg", "pdf"],
-            label_visibility="collapsed",
-        )
-
-        btn_left, btn_mid, btn_right = st.columns([1.55, 1.05, 1.55])
+        btn_left, btn_mid, btn_right = st.columns([1.35, 1.3, 1.35])
         with btn_mid:
-            confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
+            confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=False)
 
         if confirmar_inscricao:
             if not formulario_cotas_ok:
