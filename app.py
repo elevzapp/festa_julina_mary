@@ -1311,16 +1311,29 @@ def cadastrar_participantes_familia(
 
 def get_item_meta(nome_item):
     mapa = {
-        "3 refrigerantes de 2 litros": ("🥤", "Refrigerantes", "3 refrigerantes de 2 litros"),
-        "Estrutura e descartáveis": ("🍽️", "Estrutura e descartáveis", "apoio para organização da festa"),
-        "Arroz doce": ("🍚", "Arroz doce", ""),
-        "Bolo doce": ("🎂", "Bolo doce", ""),
-        "Bolo salgado": ("🥧", "Bolo salgado", ""),
-        "Doces diversos: abóbora, batata doce, cocada etc.": ("🍬", "Doces diversos", "abóbora, batata doce, cocada etc."),
-        "Milho verde": ("🌽", "Milho verde", ""),
-        "Paçoca": ("🥜", "Paçoca", ""),
-        "Pipoca": ("🍿", "Pipoca", ""),
-        "Sagu": ("🍮", "Sagu", ""),
+        "milho cozido (10 unidades)": ("🌽", "Milho cozido", "10 unidades"),
+        "cachorro quente (30 unidades)": ("🌭", "Cachorro quente", "30 unidades"),
+        "caldo verde (2 litros)": ("🥣", "Caldo verde", "2 litros"),
+        "caldinho de feijão (2 litros)": ("🥣", "Caldinho de feijão", "2 litros"),
+        "caldinho de mandioquinha (2 litros)": ("🥣", "Caldinho de mandioquinha", "2 litros"),
+        "caldinho de mandioca (2 litros)": ("🥣", "Caldinho de mandioca", "2 litros"),
+        "cuscuz (25 pedaços)": ("🍲", "Cuscuz", "25 pedaços"),
+        "bolinho caipira (20 unidades)": ("🥟", "Bolinho caipira", "20 unidades"),
+        "pastelzinho (25 unidades)": ("🥟", "Pastelzinho", "25 unidades"),
+        "bolinha de queijo (25 unidades)": ("🧀", "Bolinha de queijo", "25 unidades"),
+        "coxinha (25 unidades)": ("🍗", "Coxinha", "25 unidades"),
+        "kibe (25 unidades)": ("🥙", "Kibe", "25 unidades"),
+        "amendoim (50 saquinhos)": ("🥜", "Amendoim", "50 saquinhos"),
+        "canjica (2 litros)": ("🌽", "Canjica", "2 litros"),
+        "arroz doce (2 litros)": ("🍚", "Arroz doce", "2 litros"),
+        "bolo de chocolate (20 pedaços)": ("🍫", "Bolo de chocolate", "20 pedaços"),
+        "bolo de milho (20 pedaços)": ("🌽", "Bolo de milho", "20 pedaços"),
+        "bolo de cenoura (20 pedaços)": ("🥕", "Bolo de cenoura", "20 pedaços"),
+        "bolo de fubá (20 pedaços)": ("🍰", "Bolo de fubá", "20 pedaços"),
+        "pé de moleque (50 unidades)": ("🥜", "Pé de moleque", "50 unidades"),
+        "paçoquinha (50 unidades)": ("🥜", "Paçoquinha", "50 unidades"),
+        "cocada (20 unidades)": ("🥥", "Cocada", "20 unidades"),
+        "doce de abóbora (20 unidades)": ("🎃", "Doce de abóbora", "20 unidades"),
     }
     return mapa.get(nome_item, ("🧺", nome_item, ""))
 
@@ -1351,6 +1364,9 @@ if "inscricao_concluida" not in st.session_state:
 
 config = buscar_configuracao()
 itens_disponiveis = buscar_itens_disponiveis()
+
+LIMITE_COTA_35 = 52
+LIMITE_COTA_10 = 52
 
 total_35 = contar_participantes_por_cota("completa_35")
 total_10 = contar_participantes_por_cota("reduzida_10")
@@ -1586,8 +1602,8 @@ with form_col:
             f'''
             <div class="payment-box">
                 <strong>Cotas já escolhidas até agora:</strong><br>
-                🎟️ R$35: {total_35} participante(s) &nbsp; | &nbsp;
-                🧺 R$10 + item: {total_10} participante(s)
+                🎟️ R$35: {total_35}/{LIMITE_COTA_35} cota(s) &nbsp; | &nbsp;
+                🧺 R$10 + item: {total_10}/{LIMITE_COTA_10} cota(s)
             </div>
             ''',
             unsafe_allow_html=True,
@@ -1603,7 +1619,7 @@ with form_col:
 
         cota_options = [
             "🎟️ Cota R$35 - não preciso levar nada",
-            "🧺 Cota R$10 - contribuo e levo um item",
+            "🧺 Cota R$10 - levo um item",
         ]
 
         for idx, adulto in enumerate(adultos):
@@ -1684,8 +1700,27 @@ with form_col:
         confirmar_inscricao = st.button("Confirmar inscrição", use_container_width=True)
 
         if confirmar_inscricao:
+            from collections import Counter
+
+            selecionadas_35 = sum(1 for c in cotas_por_adulto if c == "completa_35")
+            selecionadas_10 = sum(1 for c in cotas_por_adulto if c == "reduzida_10")
+
+            vagas_item_por_nome = {item["nome"]: int(item.get("vagas_restantes") or 0) for item in itens_disponiveis}
+            itens_selecionados = [item for item in itens_por_adulto if item]
+            itens_excedidos = [
+                nome_item
+                for nome_item, qtd in Counter(itens_selecionados).items()
+                if qtd > vagas_item_por_nome.get(nome_item, 0)
+            ]
+
             if not formulario_cotas_ok:
                 st.error("Escolha o item de todos os adultos que selecionaram cota R$10.")
+            elif total_35 + selecionadas_35 > LIMITE_COTA_35:
+                st.error("Não há cotas R$35 suficientes disponíveis para todos os adultos selecionados.")
+            elif total_10 + selecionadas_10 > LIMITE_COTA_10:
+                st.error("Não há cotas R$10 suficientes disponíveis para todos os adultos selecionados.")
+            elif itens_excedidos:
+                st.error("Um ou mais itens selecionados não têm vagas suficientes. Atualize a página e escolha outro item: " + ", ".join(itens_excedidos))
             elif not comprovante:
                 st.error("Anexe o comprovante do Pix.")
             elif comprovante.size > 200 * 1024:
