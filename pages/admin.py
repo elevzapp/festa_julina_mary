@@ -309,9 +309,8 @@ def br_money(value):
 
 def cota_label(tipo):
     return {
-        "completa_50": "Cota R$50",
-        "reduzida_25": "Cota R$25",
-        "minima_5": "Cota R$5",
+        "completa_35": "Cota R$35",
+        "reduzida_10": "Cota R$10",
     }.get(tipo, tipo or "-")
 
 
@@ -461,9 +460,8 @@ def tabela_participantes(df, filtro_cota=None, filtro_status=None):
 
     if filtro_cota and filtro_cota != "Todas":
         mapa_cota = {
-            "Cota R$50": "completa_50",
-            "Cota R$25": "reduzida_25",
-            "Cota R$5": "minima_5",
+            "Cota R$35": "completa_35",
+            "Cota R$10": "reduzida_10",
         }
         base = base[base["tipo_cota"] == mapa_cota.get(filtro_cota)]
 
@@ -590,15 +588,11 @@ total_previsto = ativos["valor_cota"].sum()
 total_confirmado = confirmados["valor_cota"].sum()
 total_pendente = pendentes["valor_cota"].sum()
 
-qtd_50 = len(ativos[ativos["tipo_cota"] == "completa_50"])
-qtd_25 = len(ativos[ativos["tipo_cota"] == "reduzida_25"])
-qtd_5 = len(ativos[ativos["tipo_cota"] == "minima_5"])
+qtd_35 = len(ativos[ativos["tipo_cota"] == "completa_35"])
+qtd_10 = len(ativos[ativos["tipo_cota"] == "reduzida_10"])
 
-limite_50 = 30
-limite_25 = 20
-limite_5 = 5
-
-meta_estimativa = (limite_50 * 50) + (limite_25 * 25) + (limite_5 * 5)
+# Estimativa de referência: 50 adultos pagando a cota cheia de R$35.
+meta_estimativa = 50 * 35
 falta_estimativa = max(meta_estimativa - total_confirmado, 0)
 
 st.markdown('<div class="section-title">Resumo financeiro e de cotas</div>', unsafe_allow_html=True)
@@ -617,11 +611,11 @@ k5, k6, k7, k8 = st.columns(4)
 with k5:
     render_kpi("Participantes ativos", len(ativos), "Aguardando + confirmado")
 with k6:
-    render_kpi("Cota R$50", f"{qtd_50}/{limite_50}", f"Disponível: {max(limite_50 - qtd_50, 0)}")
+    render_kpi("Cota R$35", f"{qtd_50}/{limite_50}", f"Disponível: {max(limite_50 - qtd_50, 0)}")
 with k7:
-    render_kpi("Cota R$25", f"{qtd_25}/{limite_25}", f"Disponível: {max(limite_25 - qtd_25, 0)}")
+    render_kpi("Cota R$10", f"{qtd_25}/{limite_25}", f"Disponível: {max(limite_25 - qtd_25, 0)}")
 with k8:
-    render_kpi("Cota R$5", f"{qtd_5}/{limite_5}", "Simbólica: pode passar")
+    render_kpi("Cota R$10", f"{qtd_5}/{limite_5}", "Simbólica: pode passar")
 
 
 # =========================
@@ -671,23 +665,20 @@ else:
 
 st.markdown('<div class="section-title">Participantes por cota</div>', unsafe_allow_html=True)
 
-tab50, tab25, tab5, tabtodos = st.tabs(["Cota R$50", "Cota R$25", "Cota R$5", "Todos"])
+tab35, tab10, tabtodos = st.tabs(["Cota R$35", "Cota R$10", "Todos"])
 
-with tab50:
-    tabela_participantes(df, filtro_cota="Cota R$50", filtro_status="Todos")
+with tab35:
+    tabela_participantes(df, filtro_cota="Cota R$35", filtro_status="Todos")
 
-with tab25:
-    tabela_participantes(df, filtro_cota="Cota R$25", filtro_status="Todos")
-
-with tab5:
-    tabela_participantes(df, filtro_cota="Cota R$5", filtro_status="Todos")
+with tab10:
+    tabela_participantes(df, filtro_cota="Cota R$10", filtro_status="Todos")
 
 with tabtodos:
     col_filtro1, col_filtro2 = st.columns(2)
     with col_filtro1:
         filtro_cota = st.selectbox(
             "Filtrar por cota",
-            ["Todas", "Cota R$50", "Cota R$25", "Cota R$5"],
+            ["Todas", "Cota R$35", "Cota R$10"],
         )
     with col_filtro2:
         filtro_status = st.selectbox(
