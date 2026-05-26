@@ -1046,6 +1046,31 @@ div[data-testid="stFileUploaderFile"] {
     border-radius: 12px !important;
 }
 
+/* v17 overrides */
+.open-notes {
+    color: #111111 !important;
+    text-shadow: none !important;
+}
+.open-notes strong {
+    color: #111111 !important;
+}
+.form-compact .step-title {
+    color: #111111 !important;
+}
+.form-compact .step-subtitle {
+    color: #4b5563 !important;
+}
+.stSelectbox label p {
+    white-space: normal !important;
+    line-height: 1.2 !important;
+    font-size: 0.94rem !important;
+}
+@media (min-width: 600px) {
+    .stSelectbox label p {
+        white-space: nowrap !important;
+    }
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1425,8 +1450,8 @@ html(f"""
         </div>
         <div class="included-grid">{cards}</div>
         <div class="open-notes">
-            🥤 <strong>Bebidas:</strong> cada pessoa pode levar o que quiser beber. Se preferir, pode levar cooler também.<br>
-            🎁 <strong>Bingo:</strong> fique à vontade para levar prendas extras e deixar a brincadeira ainda mais divertida!
+            🥤 <strong>Bebidas:</strong> cada pessoa leva o que quiser beber. Se preferir, pode levar cooler também.<br>
+            🎁 <strong>Bingo:</strong> leve prendas para o bingo e deixe a brincadeira ainda mais divertida!
         </div>
     </div>
 </section>
@@ -1464,9 +1489,9 @@ html('''
 <section class="section section-cream" id="inscricao">
     <div class="section-inner">
         <div class="form-compact">
-            <div class="step-title">Inscreva sua família</div>
+            <div class="step-title">Inscreva o seu grupo</div>
             <div class="step-subtitle">
-                Preencha os dados do responsável e informe quem vai participar.<br>
+                Preencha com seus dados e informe quem mais da sua família/amigos vai participar.<br>
                 Crianças até 10 anos não pagam.
             </div>
         </div>
@@ -1483,7 +1508,7 @@ with form_col:
     whatsapp = st.text_input("WhatsApp", key="whatsapp", placeholder="(12) 98888-7777", on_change=formatar_whatsapp_state)
     whatsapp = formatar_whatsapp(whatsapp)
 
-    col3, col4 = st.columns(2)
+    col3, col4 = st.columns([1.35, 1.0])
     with col3:
         qtd_outros_adultos = st.selectbox(
             "Outros adultos além de você",
