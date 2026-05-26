@@ -1071,6 +1071,15 @@ div[data-testid="stFileUploaderFile"] {
     }
 }
 
+/* v18 label spacing */
+.form-compact { max-width: 860px !important; }
+.stSelectbox label p {
+    white-space: normal !important;
+    overflow-wrap: normal !important;
+    word-break: normal !important;
+    line-height: 1.25 !important;
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -1450,7 +1459,7 @@ html(f"""
         </div>
         <div class="included-grid">{cards}</div>
         <div class="open-notes">
-            🥤 <strong>Bebidas:</strong> cada pessoa leva o que quiser beber. Se preferir, pode levar cooler também.<br>
+            🥤 <strong>Bebidas:</strong> Cada pessoa leva o que quiser beber. Para garantir sua bebida geladinha a noite toda, leve seu cooler!<br>
             🎁 <strong>Bingo:</strong> leve prendas para o bingo e deixe a brincadeira ainda mais divertida!
         </div>
     </div>
@@ -1468,12 +1477,12 @@ html("""
             <div class="how-card">
                 <div class="how-emoji">🎟️</div>
                 <div class="how-title">Cota R$35</div>
-                <div class="how-text">Você contribui com R$35 e não precisa levar nada.</div>
+                <div class="how-text">Cada pessoa contribui com R$35 e não precisa levar nada.</div>
             </div>
             <div class="how-card">
                 <div class="how-emoji">🧺</div>
                 <div class="how-title">Cota R$10</div>
-                <div class="how-text">Você contribui com R$10 e escolhe um item da lista para levar.</div>
+                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar.</div>
             </div>
         </div>
     </div>
@@ -1499,7 +1508,7 @@ html('''
 </section>
 ''')
 
-form_col_left, form_col, form_col_right = st.columns([1.9, 1.0, 1.9])
+form_col_left, form_col, form_col_right = st.columns([1.35, 1.5, 1.35])
 
 with form_col:
     responsavel_nome = st.text_input("Nome completo do responsável", key="responsavel_nome")
@@ -1508,7 +1517,7 @@ with form_col:
     whatsapp = st.text_input("WhatsApp", key="whatsapp", placeholder="(12) 98888-7777", on_change=formatar_whatsapp_state)
     whatsapp = formatar_whatsapp(whatsapp)
 
-    col3, col4 = st.columns([1.35, 1.0])
+    col3, col4 = st.columns([1.35, 1.0], gap="large")
     with col3:
         qtd_outros_adultos = st.selectbox(
             "Outros adultos além de você",
