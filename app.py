@@ -1366,7 +1366,7 @@ config = buscar_configuracao()
 itens_disponiveis = buscar_itens_disponiveis()
 
 LIMITE_COTA_35 = 52
-LIMITE_COTA_10 = 52
+LIMITE_COTA_10 = 54
 
 total_35 = contar_participantes_por_cota("completa_35")
 total_10 = contar_participantes_por_cota("reduzida_10")
@@ -1493,12 +1493,12 @@ html("""
             <div class="how-card">
                 <div class="how-emoji">🎟️</div>
                 <div class="how-title">Cota R$35</div>
-                <div class="how-text">Cada pessoa contribui com R$35, leva só a bebida e a prenda.</div>
+                <div class="how-text">Cada pessoa contribui com R$35 e leva sua bebida.</div>
             </div>
             <div class="how-card">
                 <div class="how-emoji">🧺</div>
                 <div class="how-title">Cota R$10</div>
-                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar além da bebida e da prenda.</div>
+                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar, além da sua bebida.</div>
             </div>
         </div>
     </div>
@@ -1618,8 +1618,8 @@ with form_col:
         item_options = [item_placeholder] + [item["nome"] for item in itens_disponiveis]
 
         cota_options = [
-            "🎟️ Cota R$35 - levo apenas a bebida e a prenda",
-            "🧺 Cota R$10 - levo um item, a bebida e a prenda",
+            "🎟️ Cota R$35 - levo apenas a bebida",
+            "🧺 Cota R$10 - levo um item e a bebida",
         ]
 
         for idx, adulto in enumerate(adultos):
