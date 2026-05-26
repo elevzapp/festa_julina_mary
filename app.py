@@ -2,6 +2,7 @@
 from datetime import datetime
 from pathlib import Path
 from uuid import uuid4
+from zoneinfo import ZoneInfo
 import base64
 import json
 import re
@@ -702,6 +703,37 @@ section[data-testid="stFileUploaderDropzone"] {
     margin: 18px auto 0 auto;
 }
 
+.open-notes {
+    margin-top: 26px;
+    text-align: center;
+    color: #ffffff !important;
+    font-size: clamp(1.05rem, 2.8vw, 1.35rem);
+    line-height: 1.55;
+    font-weight: 900;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.18);
+}
+.open-notes strong { color: #ffffff !important; }
+.closed-card {
+    max-width: 760px;
+    margin: 42px auto;
+    background: #ffffff;
+    border: 1px solid #efd3a1;
+    border-radius: 26px;
+    padding: 34px;
+    text-align: center;
+    box-shadow: 0 12px 28px rgba(90, 60, 20, 0.08);
+}
+.closed-card h2 {
+    color: #111111 !important;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    margin: 0 0 14px 0;
+}
+.closed-card p {
+    font-size: 1.15rem;
+    line-height: 1.65;
+    color: #111111 !important;
+}
+
 @media (max-width: 800px) {
     .banner-wrap {
         width: 100%;
@@ -1222,8 +1254,8 @@ def cadastrar_participantes_familia(
     registros = []
     for idx, adulto in enumerate(adultos):
         tipo_cota = cotas_por_adulto[idx]
-        valor_cota = {"completa_50": 50.0, "reduzida_25": 25.0, "minima_5": 5.0}[tipo_cota]
-        item = itens_por_adulto[idx] if tipo_cota in ["reduzida_25", "minima_5"] else None
+        valor_cota = {"completa_35": 35.0, "reduzida_10": 10.0}[tipo_cota]
+        item = itens_por_adulto[idx] if tipo_cota == "reduzida_10" else None
 
         registros.append({
             "nome": adulto,
@@ -1246,6 +1278,7 @@ def cadastrar_participantes_familia(
 def get_item_meta(nome_item):
     mapa = {
         "3 refrigerantes de 2 litros": ("🥤", "Refrigerantes", "3 refrigerantes de 2 litros"),
+        "Estrutura e descartáveis": ("🍽️", "Estrutura e descartáveis", "apoio para organização da festa"),
         "Arroz doce": ("🍚", "Arroz doce", ""),
         "Bolo doce": ("🎂", "Bolo doce", ""),
         "Bolo salgado": ("🥧", "Bolo salgado", ""),
@@ -1285,13 +1318,8 @@ if "inscricao_concluida" not in st.session_state:
 config = buscar_configuracao()
 itens_disponiveis = buscar_itens_disponiveis()
 
-total_50 = contar_participantes_por_cota("completa_50")
-total_25 = contar_participantes_por_cota("reduzida_25")
-total_5 = contar_participantes_por_cota("minima_5")
-
-vagas_50 = max(int(config["limite_cota_50"]) - total_50, 0)
-vagas_25 = max(int(config["limite_cota_25"]) - total_25, 0)
-vagas_5 = max(5 - total_5, 0)
+total_35 = contar_participantes_por_cota("completa_35")
+total_10 = contar_participantes_por_cota("reduzida_10")
 
 
 # =========================
@@ -1299,6 +1327,31 @@ vagas_5 = max(5 - total_5, 0)
 # =========================
 
 render_banner()
+
+INSCRICOES_ENCERRAM = datetime(2026, 7, 6, 0, 0, tzinfo=ZoneInfo("America/Sao_Paulo"))
+agora_sp = datetime.now(ZoneInfo("America/Sao_Paulo"))
+inscricoes_encerradas = agora_sp >= INSCRICOES_ENCERRAM
+
+if inscricoes_encerradas and not st.session_state.inscricao_concluida:
+    html("""
+    <section class="section section-cream">
+        <div class="closed-card">
+            <h2>Inscrições encerradas</h2>
+            <p>
+                Que pena, o prazo para se inscrever terminou em 5 de julho.<br>
+                Agora a organização precisa fechar as compras, quantidades e estrutura da festa.<br>
+                Obrigada pela compreensão 🌽🔥
+            </p>
+        </div>
+    </section>
+    """)
+    html("""
+    <div class="footer-note">
+        Festa Julina da Mary • Organização das inscrições e contribuições<br>
+        <strong>Desenvolvimento by Levz</strong>
+    </div>
+    """)
+    st.stop()
 
 if st.session_state.inscricao_concluida:
     html('''
@@ -1336,7 +1389,8 @@ html("""
         <div class="hero-text">
             Uma noite gostosa, divertida e bem organizada para reunir todo mundo.
             Quem participar já terá acesso às comidas principais, às brincadeiras,
-            à estrutura preparada e a uma programação cheia de clima julino.
+            à estrutura preparada e a uma programação cheia de clima julino.<br><br>
+            <strong>Vagas limitadas, se inscreva até 5 de julho.</strong>
         </div>
         <a class="cta-link" href="#inscricao">Quero me inscrever</a>
     </div>
@@ -1347,7 +1401,7 @@ included = [
     ("🥟", "Bolinho caipira"),
     ("🥣", "Caldinhos"),
     ("🌭", "Cachorro-quente"),
-    ("🥤", "Refrigerante"),
+    ("🍽️", "Estrutura e descartáveis"),
     ("🎤", "Karaokê"),
     ("📺", "Telão interativo"),
     ("🎯", "Bingo"),
@@ -1370,10 +1424,9 @@ html(f"""
             A festa já está sendo preparada com comidas, estrutura e atrações para todo mundo aproveitar.
         </div>
         <div class="included-grid">{cards}</div>
-        <div class="note-card">
-            🍻 <strong>Bebidas alcoólicas:</strong> cada pessoa leva a sua, caso queira consumir.
-            &nbsp;&nbsp;|&nbsp;&nbsp;
-            🎁 <strong>Prendas para o bingo:</strong> quem quiser colaborar pode levar prendas extras à vontade.
+        <div class="open-notes">
+            🥤 <strong>Bebidas:</strong> cada pessoa pode levar o que quiser beber. Se preferir, pode levar cooler também.<br>
+            🎁 <strong>Bingo:</strong> fique à vontade para levar prendas extras e deixar a brincadeira ainda mais divertida!
         </div>
     </div>
 </section>
@@ -1386,21 +1439,16 @@ html("""
         <div class="section-subtitle">
             Escolha a forma de participação de cada adulto da família.
         </div>
-        <div class="how-grid">
+        <div class="how-grid" style="grid-template-columns: repeat(2, 1fr);">
             <div class="how-card">
                 <div class="how-emoji">🎟️</div>
-                <div class="how-title">Cota R$50</div>
-                <div class="how-text">Para quem quer participar sem precisar levar nenhum prato.</div>
+                <div class="how-title">Cota R$35</div>
+                <div class="how-text">Você contribui com R$35 e não precisa levar nada.</div>
             </div>
             <div class="how-card">
                 <div class="how-emoji">🧺</div>
-                <div class="how-title">Cota R$25</div>
-                <div class="how-text">Você contribui com R$25 e escolhe um item para levar.</div>
-            </div>
-            <div class="how-card">
-                <div class="how-emoji">🤝</div>
-                <div class="how-title">Cota R$5</div>
-                <div class="how-text">Cota solidária para quem está apertado. Também escolhe um item para levar.</div>
+                <div class="how-title">Cota R$10</div>
+                <div class="how-text">Você contribui com R$10 e escolhe um item da lista para levar.</div>
             </div>
         </div>
     </div>
@@ -1496,17 +1544,16 @@ with form_col:
         st.divider()
         st.markdown('<div class="step-title">Escolha as cotas dos adultos</div>', unsafe_allow_html=True)
         st.markdown(
-            '<div class="step-subtitle">Cada adulto deve escolher uma cota. Quem escolher R$25 ou R$5 também escolhe um item para levar.</div>',
+            '<div class="step-subtitle">Cada adulto deve escolher uma cota. Quem escolher R$10 também escolhe um item para levar.</div>',
             unsafe_allow_html=True,
         )
 
         st.markdown(
             f'''
             <div class="payment-box">
-                <strong>Cotas disponíveis:</strong><br>
-                🎟️ R$50: {vagas_50} vaga(s) &nbsp; | &nbsp;
-                🧺 R$25: {vagas_25} vaga(s) &nbsp; | &nbsp;
-                🤝 R$5: {vagas_5} vaga(s) simbólica(s)
+                <strong>Cotas já escolhidas até agora:</strong><br>
+                🎟️ R$35: {total_35} participante(s) &nbsp; | &nbsp;
+                🧺 R$10 + item: {total_10} participante(s)
             </div>
             ''',
             unsafe_allow_html=True,
@@ -1521,9 +1568,8 @@ with form_col:
         item_options = [item_placeholder] + [item["nome"] for item in itens_disponiveis]
 
         cota_options = [
-            "🎟️ Cota R$50 - não preciso levar prato",
-            "🧺 Cota R$25 - vou levar um item",
-            "🤝 Cota R$5 - solidária + vou levar um item",
+            "🎟️ Cota R$35 - não preciso levar nada",
+            "🧺 Cota R$10 - contribuo e levo um item",
         ]
 
         for idx, adulto in enumerate(adultos):
@@ -1535,24 +1581,13 @@ with form_col:
                 key=f"cota_adulto_{idx}",
             )
 
-            if "R$50" in cota_label:
-                tipo = "completa_50"
-                valor_total += 50.0
+            if "R$35" in cota_label:
+                tipo = "completa_35"
+                valor_total += 35.0
                 item = None
-            elif "R$25" in cota_label:
-                tipo = "reduzida_25"
-                valor_total += 25.0
-                item = st.selectbox(
-                    f"Item que {adulto} vai levar",
-                    item_options,
-                    key=f"item_adulto_{idx}",
-                )
-                if item == item_placeholder:
-                    formulario_cotas_ok = False
-                    item = None
             else:
-                tipo = "minima_5"
-                valor_total += 5.0
+                tipo = "reduzida_10"
+                valor_total += 10.0
                 item = st.selectbox(
                     f"Item que {adulto} vai levar",
                     item_options,
@@ -1616,7 +1651,7 @@ with form_col:
 
         if confirmar_inscricao:
             if not formulario_cotas_ok:
-                st.error("Escolha o item de todos os adultos que selecionaram cota R$25 ou R$5.")
+                st.error("Escolha o item de todos os adultos que selecionaram cota R$10.")
             elif not comprovante:
                 st.error("Anexe o comprovante do Pix.")
             elif comprovante.size > 200 * 1024:
