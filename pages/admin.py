@@ -584,6 +584,9 @@ confirmados = df[df["status_pagamento"] == "confirmado"].copy()
 pendentes = df[df["status_pagamento"] == "aguardando_conferencia"].copy()
 recusados = df[df["status_pagamento"] == "recusado"].copy()
 
+LIMITE_COTA_35 = 52
+LIMITE_COTA_10 = 52
+
 total_previsto = ativos["valor_cota"].sum()
 total_confirmado = confirmados["valor_cota"].sum()
 total_pendente = pendentes["valor_cota"].sum()
@@ -591,8 +594,8 @@ total_pendente = pendentes["valor_cota"].sum()
 qtd_35 = len(ativos[ativos["tipo_cota"] == "completa_35"])
 qtd_10 = len(ativos[ativos["tipo_cota"] == "reduzida_10"])
 
-# Estimativa de referência: 50 adultos pagando a cota cheia de R$35.
-meta_estimativa = 50 * 35
+# Estimativa de referência: 52 adultos pagando a cota cheia de R$35.
+meta_estimativa = LIMITE_COTA_35 * 35
 falta_estimativa = max(meta_estimativa - total_confirmado, 0)
 
 st.markdown('<div class="section-title">Resumo financeiro e de cotas</div>', unsafe_allow_html=True)
@@ -607,15 +610,13 @@ with k3:
 with k4:
     render_kpi("Falta para estimativa", br_money(falta_estimativa), f"Estimativa base: {br_money(meta_estimativa)}")
 
-k5, k6, k7, k8 = st.columns(4)
+k5, k6, k7 = st.columns(3)
 with k5:
     render_kpi("Participantes ativos", len(ativos), "Aguardando + confirmado")
 with k6:
-    render_kpi("Cota R$35", f"{qtd_50}/{limite_50}", f"Disponível: {max(limite_50 - qtd_50, 0)}")
+    render_kpi("Cota R$35", f"{qtd_35}/{LIMITE_COTA_35}", f"Disponível: {max(LIMITE_COTA_35 - qtd_35, 0)}")
 with k7:
-    render_kpi("Cota R$10", f"{qtd_25}/{limite_25}", f"Disponível: {max(limite_25 - qtd_25, 0)}")
-with k8:
-    render_kpi("Cota R$10", f"{qtd_5}/{limite_5}", "Simbólica: pode passar")
+    render_kpi("Cota R$10", f"{qtd_10}/{LIMITE_COTA_10}", f"Disponível: {max(LIMITE_COTA_10 - qtd_10, 0)}")
 
 
 # =========================
