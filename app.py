@@ -1493,12 +1493,12 @@ html("""
             <div class="how-card">
                 <div class="how-emoji">🎟️</div>
                 <div class="how-title">Cota R$35</div>
-                <div class="how-text">Cada pessoa contribui com R$35 e não precisa levar nada.</div>
+                <div class="how-text">Cada pessoa contribui com R$35, leva só a bebida e a prenda.</div>
             </div>
             <div class="how-card">
                 <div class="how-emoji">🧺</div>
                 <div class="how-title">Cota R$10</div>
-                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar.</div>
+                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar além da bebida e da prenda.</div>
             </div>
         </div>
     </div>
@@ -1618,8 +1618,8 @@ with form_col:
         item_options = [item_placeholder] + [item["nome"] for item in itens_disponiveis]
 
         cota_options = [
-            "🎟️ Cota R$35 - não preciso levar nada",
-            "🧺 Cota R$10 - levo um item",
+            "🎟️ Cota R$35 - levo apenas a bebida e a prenda",
+            "🧺 Cota R$10 - levo um item, a bebida e a prenda",
         ]
 
         for idx, adulto in enumerate(adultos):
