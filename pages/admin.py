@@ -585,7 +585,7 @@ pendentes = df[df["status_pagamento"] == "aguardando_conferencia"].copy()
 recusados = df[df["status_pagamento"] == "recusado"].copy()
 
 LIMITE_COTA_35 = 52
-LIMITE_COTA_10 = 52
+LIMITE_COTA_10 = 54
 
 total_previsto = ativos["valor_cota"].sum()
 total_confirmado = confirmados["valor_cota"].sum()
