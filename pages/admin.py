@@ -679,21 +679,38 @@ total_pendente = pendentes["valor_cota"].sum()
 qtd_35 = len(ativos[ativos["tipo_cota"] == "completa_35"])
 qtd_10 = len(ativos[ativos["tipo_cota"] == "reduzida_10"])
 
-# Estimativa de referência: 52 adultos pagando a cota cheia de R$35.
-meta_estimativa = LIMITE_COTA_35 * 35
-falta_estimativa = max(meta_estimativa - total_confirmado, 0)
+# Cenários de arrecadação: referência com 52 participantes adultos.
+BASE_CENARIO = 52
+cenario_todos_35 = BASE_CENARIO * 35
+cenario_todos_10 = BASE_CENARIO * 10
+falta_para_cenario_35 = max(cenario_todos_35 - total_confirmado, 0)
+falta_para_cenario_10 = max(cenario_todos_10 - total_confirmado, 0)
 
 st.markdown('<div class="section-title">Resumo financeiro e de cotas</div>', unsafe_allow_html=True)
 
-k1, k2, k3, k4 = st.columns(4)
+k1, k2, k3 = st.columns(3)
 with k1:
     render_kpi("Total previsto", br_money(total_previsto), "Aguardando + confirmado")
 with k2:
     render_kpi("Total confirmado", br_money(total_confirmado), "Pagamentos conferidos")
 with k3:
     render_kpi("Pendente de conferência", br_money(total_pendente), "Comprovantes enviados")
-with k4:
-    render_kpi("Falta para estimativa", br_money(falta_estimativa), f"Estimativa base: {br_money(meta_estimativa)}")
+
+st.markdown('<div class="section-title small-section-title">Cenários de arrecadação</div>', unsafe_allow_html=True)
+
+c1, c2 = st.columns(2)
+with c1:
+    render_kpi(
+        "Cenário máximo",
+        br_money(cenario_todos_35),
+        f"52 pessoas na cota R$35 • Falta confirmado: {br_money(falta_para_cenario_35)}",
+    )
+with c2:
+    render_kpi(
+        "Cenário mínimo",
+        br_money(cenario_todos_10),
+        f"52 pessoas na cota R$10 • Falta confirmado: {br_money(falta_para_cenario_10)}",
+    )
 
 k5, k6, k7 = st.columns(3)
 with k5:
