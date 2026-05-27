@@ -1,5 +1,6 @@
 
 from datetime import datetime
+import json
 import pandas as pd
 import streamlit as st
 from supabase import create_client
@@ -451,6 +452,80 @@ def preparar_df(participantes):
     return df
 
 
+
+def normalizar_familiares(valor):
+    if valor is None or valor == "":
+        return {}
+    if isinstance(valor, dict):
+        return valor
+    try:
+        return json.loads(valor)
+    except Exception:
+        return {}
+
+
+def montar_lista_presenca(df):
+    if df.empty:
+        return pd.DataFrame()
+
+    linhas = []
+
+    for _, row in df.iterrows():
+        familia = normalizar_familiares(row.get("familiares"))
+        responsavel = familia.get("responsavel") or row.get("nome") or "-"
+
+        linhas.append({
+            "Nome": row.get("nome") or "-",
+            "Tipo": "Adulto pagante",
+            "Responsável": responsavel,
+            "Cota": row.get("Cota") or cota_label(row.get("tipo_cota")),
+            "Valor": br_money(row.get("valor_cota", 0)),
+            "Item": row.get("Item") or row.get("item_levar") or "-",
+            "Status": row.get("Status") or status_label(row.get("status_pagamento")),
+            "E-mail": row.get("email") or "-",
+            "WhatsApp": row.get("whatsapp") or "-",
+        })
+
+        # Evita duplicar crianças quando há vários adultos no mesmo grupo.
+        grupo_id = familia.get("grupo_id") or f"sem_grupo_{row.get('id')}"
+        criancas = familia.get("criancas") or []
+        if not isinstance(criancas, list):
+            criancas = []
+
+        for crianca in criancas:
+            nome_crianca = str(crianca).strip()
+            if not nome_crianca:
+                continue
+            linhas.append({
+                "Nome": nome_crianca,
+                "Tipo": "Criança até 10 anos",
+                "Responsável": responsavel,
+                "Cota": "Não paga",
+                "Valor": br_money(0),
+                "Item": "-",
+                "Status": "Vinculado",
+                "E-mail": row.get("email") or "-",
+                "WhatsApp": row.get("whatsapp") or "-",
+                "_grupo_crianca": f"{grupo_id}|{nome_crianca.lower()}",
+            })
+
+    presenca = pd.DataFrame(linhas)
+    if presenca.empty:
+        return presenca
+
+    if "_grupo_crianca" in presenca.columns:
+        adultos = presenca[presenca.get("Tipo") == "Adulto pagante"].copy()
+        criancas = presenca[presenca.get("Tipo") == "Criança até 10 anos"].copy()
+        if not criancas.empty:
+            criancas = criancas.drop_duplicates(subset=["_grupo_crianca"], keep="first")
+        presenca = pd.concat([adultos, criancas], ignore_index=True)
+        presenca = presenca.drop(columns=["_grupo_crianca"], errors="ignore")
+
+    ordem_tipo = {"Adulto pagante": 0, "Criança até 10 anos": 1}
+    presenca["_ordem_tipo"] = presenca["Tipo"].map(ordem_tipo).fillna(9)
+    presenca = presenca.sort_values(["Responsável", "_ordem_tipo", "Nome"]).drop(columns=["_ordem_tipo"])
+    return presenca.reset_index(drop=True)
+
 def tabela_participantes(df, filtro_cota=None, filtro_status=None):
     if df.empty:
         st.info("Ainda não há participantes cadastrados.")
@@ -746,6 +821,38 @@ for participante in df.sort_values("criado_em", ascending=False).to_dict("record
                 atualizar_status(participante.get("id"), status_opcoes[novo_status_label])
                 st.success("Status atualizado.")
                 st.rerun()
+
+
+
+# =========================
+# LISTA COMPLETA DE PRESENÇA
+# =========================
+
+st.markdown('<div class="section-title">Lista completa de presença</div>', unsafe_allow_html=True)
+st.caption("Inclui adultos pagantes e crianças até 10 anos vinculadas aos grupos/famílias.")
+
+lista_presenca = montar_lista_presenca(df)
+
+if lista_presenca.empty:
+    st.info("Ainda não há presença cadastrada.")
+else:
+    col_pres1, col_pres2, col_pres3 = st.columns(3)
+    with col_pres1:
+        render_kpi("Total na lista", len(lista_presenca), "Adultos + crianças")
+    with col_pres2:
+        render_kpi("Adultos pagantes", len(lista_presenca[lista_presenca["Tipo"] == "Adulto pagante"]), "Com cota")
+    with col_pres3:
+        render_kpi("Crianças até 10 anos", len(lista_presenca[lista_presenca["Tipo"] == "Criança até 10 anos"]), "Não pagam")
+
+    render_table(lista_presenca[["Nome", "Tipo", "Responsável", "Cota", "Valor", "Item", "Status", "E-mail", "WhatsApp"]])
+
+    csv_presenca = lista_presenca.to_csv(index=False).encode("utf-8-sig")
+    st.download_button(
+        "Baixar lista completa de presença",
+        data=csv_presenca,
+        file_name="lista_completa_presenca_festa_julina_mary.csv",
+        mime="text/csv",
+    )
 
 
 # =========================
