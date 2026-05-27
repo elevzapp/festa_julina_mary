@@ -1493,12 +1493,12 @@ html("""
             <div class="how-card">
                 <div class="how-emoji">🎟️</div>
                 <div class="how-title">Cota R$35</div>
-                <div class="how-text">Cada pessoa contribui com R$35 e leva sua bebida.</div>
+                <div class="how-text">Cada pessoa contribui com R$35 e não precisa levar nada.</div>
             </div>
             <div class="how-card">
                 <div class="how-emoji">🧺</div>
                 <div class="how-title">Cota R$10</div>
-                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar, além da sua bebida.</div>
+                <div class="how-text">Cada pessoa contribui com R$10 e escolhe um item da lista para levar.</div>
             </div>
         </div>
     </div>
@@ -1615,12 +1615,13 @@ with form_col:
         formulario_cotas_ok = True
 
         item_placeholder = "Selecione o item que vai levar"
-        item_options = [item_placeholder] + [item["nome"] for item in itens_disponiveis]
 
         cota_options = [
-            "🎟️ Cota R$35 - levo apenas a bebida",
-            "🧺 Cota R$10 - levo um item e a bebida",
+            "🎟️ Cota R$35 - não preciso levar nada",
+            "🧺 Cota R$10 - levo um item",
         ]
+
+        from collections import Counter
 
         for idx, adulto in enumerate(adultos):
             st.markdown(f'<div class="person-card"><div class="person-title">{adulto}</div>', unsafe_allow_html=True)
@@ -1638,10 +1639,28 @@ with form_col:
             else:
                 tipo = "reduzida_10"
                 valor_total += 10.0
+
+                # Remove automaticamente da lista os itens já esgotados pelas escolhas anteriores
+                # feitas neste mesmo cadastro, além das vagas já ocupadas no banco.
+                escolhas_anteriores = Counter(item for item in itens_por_adulto if item)
+                item_options = [item_placeholder]
+
+                for item_disponivel in itens_disponiveis:
+                    nome_item = item_disponivel["nome"]
+                    vagas_restantes_banco = int(item_disponivel.get("vagas_restantes") or 0)
+                    vagas_restantes_no_formulario = vagas_restantes_banco - escolhas_anteriores.get(nome_item, 0)
+
+                    if vagas_restantes_no_formulario > 0:
+                        item_options.append(nome_item)
+
+                item_key = f"item_adulto_{idx}"
+                if st.session_state.get(item_key) not in item_options:
+                    st.session_state[item_key] = item_placeholder
+
                 item = st.selectbox(
                     f"Item que {adulto} vai levar",
                     item_options,
-                    key=f"item_adulto_{idx}",
+                    key=item_key,
                 )
                 if item == item_placeholder:
                     formulario_cotas_ok = False
