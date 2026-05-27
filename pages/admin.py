@@ -277,6 +277,65 @@ hr {
     border-top: 1px solid #ead7b5;
     margin: 20px 0;
 }
+
+/* v11 - cards de cenário com barra */
+.progress-card {
+    background: #ffffff;
+    border: 1px solid #ebc98f;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: 0 10px 28px rgba(90,60,20,0.05);
+    margin-bottom: 12px;
+}
+.progress-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.progress-title {
+    font-weight: 900;
+    color: #111111;
+    font-size: 1.1rem;
+}
+.progress-count {
+    color: #4b5563;
+    font-weight: 800;
+    font-size: 0.98rem;
+}
+.progress-main {
+    font-size: clamp(1.75rem, 3vw, 2.35rem);
+    font-weight: 950;
+    color: #111111;
+    margin: 8px 0 2px 0;
+}
+.progress-sub {
+    color: #4b5563;
+    font-size: 0.98rem;
+    margin-bottom: 14px;
+}
+.progress-track {
+    width: 100%;
+    height: 16px;
+    background: #fff1d6;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 1px solid #efd3a1;
+}
+.progress-fill {
+    height: 100%;
+    background: #e98400;
+    border-radius: 999px;
+}
+.progress-foot {
+    display: flex;
+    justify-content: space-between;
+    color: #4b5563;
+    font-size: 0.92rem;
+    margin-top: 8px;
+}
+
 </style>
 """,
     unsafe_allow_html=True,
@@ -585,6 +644,35 @@ def render_kpi(label, value, sub=""):
     )
 
 
+def render_progress_card(titulo, contagem, meta_valor, confirmado_valor):
+    meta_valor = float(meta_valor or 0)
+    confirmado_valor = float(confirmado_valor or 0)
+    falta_valor = max(meta_valor - confirmado_valor, 0)
+    progresso = 0 if meta_valor <= 0 else min((confirmado_valor / meta_valor) * 100, 100)
+
+    st.markdown(
+        f"""
+<div class="progress-card">
+    <div class="progress-head">
+        <div class="progress-title">{safe_html(titulo)}</div>
+        <div class="progress-count">{safe_html(contagem)}</div>
+    </div>
+    <div class="progress-main">Faltam {br_money(falta_valor)}</div>
+    <div class="progress-sub">Confirmado: {br_money(confirmado_valor)} de {br_money(meta_valor)}</div>
+    <div class="progress-track">
+        <div class="progress-fill" style="width:{progresso:.1f}%"></div>
+    </div>
+    <div class="progress-foot">
+        <span>0%</span>
+        <span>{progresso:.0f}% confirmado</span>
+        <span>100%</span>
+    </div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
+
+
 # =========================
 # LOGIN
 # =========================
@@ -688,37 +776,39 @@ falta_para_cenario_10 = max(cenario_todos_10 - total_confirmado, 0)
 
 st.markdown('<div class="section-title">Resumo financeiro e de cotas</div>', unsafe_allow_html=True)
 
+# Cenários de arrecadação:
+# - Cota R$35: 52 pessoas x R$35 = R$ 1.820,00
+# - Cota R$10: 54 pessoas x R$10 = R$ 540,00
+META_COTA_35 = LIMITE_COTA_35 * 35
+META_COTA_10 = LIMITE_COTA_10 * 10
+
+confirmado_35 = confirmados[confirmados["tipo_cota"] == "completa_35"]["valor_cota"].sum()
+confirmado_10 = confirmados[confirmados["tipo_cota"] == "reduzida_10"]["valor_cota"].sum()
+
+col_cenario_35, col_cenario_10 = st.columns(2)
+with col_cenario_35:
+    render_progress_card(
+        "Cota R$35",
+        f"{qtd_35}/{LIMITE_COTA_35} pessoas",
+        META_COTA_35,
+        confirmado_35,
+    )
+with col_cenario_10:
+    render_progress_card(
+        "Cota R$10",
+        f"{qtd_10}/{LIMITE_COTA_10} pessoas",
+        META_COTA_10,
+        confirmado_10,
+    )
+
 k1, k2, k3 = st.columns(3)
 with k1:
-    render_kpi("Total previsto", br_money(total_previsto), "Aguardando + confirmado")
+    render_kpi("Total de adultos", len(ativos), "Aguardando + confirmado")
 with k2:
-    render_kpi("Total confirmado", br_money(total_confirmado), "Pagamentos conferidos")
+    render_kpi("Sem confirmar pagamento", len(pendentes), "Aguardando conferência")
 with k3:
-    render_kpi("Pendente de conferência", br_money(total_pendente), "Comprovantes enviados")
+    render_kpi("Pagamento confirmado", len(confirmados), "Pagamentos conferidos")
 
-st.markdown('<div class="section-title small-section-title">Cenários de arrecadação</div>', unsafe_allow_html=True)
-
-c1, c2 = st.columns(2)
-with c1:
-    render_kpi(
-        "Cenário máximo",
-        br_money(cenario_todos_35),
-        f"52 pessoas na cota R$35 • Falta confirmado: {br_money(falta_para_cenario_35)}",
-    )
-with c2:
-    render_kpi(
-        "Cenário mínimo",
-        br_money(cenario_todos_10),
-        f"52 pessoas na cota R$10 • Falta confirmado: {br_money(falta_para_cenario_10)}",
-    )
-
-k5, k6, k7 = st.columns(3)
-with k5:
-    render_kpi("Participantes ativos", len(ativos), "Aguardando + confirmado")
-with k6:
-    render_kpi("Cota R$35", f"{qtd_35}/{LIMITE_COTA_35}", f"Disponível: {max(LIMITE_COTA_35 - qtd_35, 0)}")
-with k7:
-    render_kpi("Cota R$10", f"{qtd_10}/{LIMITE_COTA_10}", f"Disponível: {max(LIMITE_COTA_10 - qtd_10, 0)}")
 
 
 # =========================
@@ -863,14 +953,6 @@ lista_presenca = montar_lista_presenca(df)
 if lista_presenca.empty:
     st.info("Ainda não há presença cadastrada.")
 else:
-    col_pres1, col_pres2, col_pres3 = st.columns(3)
-    with col_pres1:
-        render_kpi("Total na lista", len(lista_presenca), "Adultos + crianças")
-    with col_pres2:
-        render_kpi("Adultos pagantes", len(lista_presenca[lista_presenca["Tipo"] == "Adulto pagante"]), "Com cota")
-    with col_pres3:
-        render_kpi("Crianças até 10 anos", len(lista_presenca[lista_presenca["Tipo"] == "Criança até 10 anos"]), "Não pagam")
-
     render_table(lista_presenca[["Nome", "Tipo", "Responsável", "Cota", "Valor", "Item", "Status", "E-mail", "WhatsApp"]])
 
     csv_presenca = lista_presenca.to_csv(index=False).encode("utf-8-sig")
