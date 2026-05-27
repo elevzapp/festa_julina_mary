@@ -487,10 +487,20 @@ def montar_lista_presenca(df):
         })
 
         # Evita duplicar crianças quando há vários adultos no mesmo grupo.
-        grupo_id = familia.get("grupo_id") or f"sem_grupo_{row.get('id')}"
+        # Alguns cadastros antigos/corrigidos manualmente podem não ter grupo_id.
+        # Nesses casos, usamos uma chave estável formada por responsável + e-mail + WhatsApp.
+        # Assim a criança aparece uma única vez na lista completa, mesmo que o grupo tenha 2+ adultos.
         criancas = familia.get("criancas") or []
         if not isinstance(criancas, list):
             criancas = []
+
+        grupo_id = familia.get("grupo_id")
+        if not grupo_id:
+            grupo_id = "|".join([
+                str(responsavel or "").strip().lower(),
+                str(row.get("email") or "").strip().lower(),
+                str(row.get("whatsapp") or "").strip().lower(),
+            ])
 
         for crianca in criancas:
             nome_crianca = str(crianca).strip()
