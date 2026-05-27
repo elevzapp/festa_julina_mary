@@ -1598,17 +1598,6 @@ with form_col:
             unsafe_allow_html=True,
         )
 
-        st.markdown(
-            f'''
-            <div class="payment-box">
-                <strong>Cotas já escolhidas até agora:</strong><br>
-                🎟️ R$35: {total_35}/{LIMITE_COTA_35} cota(s) &nbsp; | &nbsp;
-                🧺 R$10 + item: {total_10}/{LIMITE_COTA_10} cota(s)
-            </div>
-            ''',
-            unsafe_allow_html=True,
-        )
-
         cotas_por_adulto = []
         itens_por_adulto = []
         valor_total = 0.0
@@ -1643,7 +1632,9 @@ with form_col:
                 # Remove automaticamente da lista os itens já esgotados pelas escolhas anteriores
                 # feitas neste mesmo cadastro, além das vagas já ocupadas no banco.
                 escolhas_anteriores = Counter(item for item in itens_por_adulto if item)
+
                 item_options = [item_placeholder]
+                item_label_para_nome = {item_placeholder: None}
 
                 for item_disponivel in itens_disponiveis:
                     nome_item = item_disponivel["nome"]
@@ -1651,20 +1642,23 @@ with form_col:
                     vagas_restantes_no_formulario = vagas_restantes_banco - escolhas_anteriores.get(nome_item, 0)
 
                     if vagas_restantes_no_formulario > 0:
-                        item_options.append(nome_item)
+                        label_item = f"{nome_item} — {vagas_restantes_no_formulario} disponível(is)"
+                        item_options.append(label_item)
+                        item_label_para_nome[label_item] = nome_item
 
                 item_key = f"item_adulto_{idx}"
                 if st.session_state.get(item_key) not in item_options:
                     st.session_state[item_key] = item_placeholder
 
-                item = st.selectbox(
+                item_label = st.selectbox(
                     f"Item que {adulto} vai levar",
                     item_options,
                     key=item_key,
                 )
-                if item == item_placeholder:
+
+                item = item_label_para_nome.get(item_label)
+                if item is None:
                     formulario_cotas_ok = False
-                    item = None
 
             cotas_por_adulto.append(tipo)
             itens_por_adulto.append(item)
